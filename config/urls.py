@@ -7,7 +7,7 @@ def healthcheck(_request):
     return JsonResponse({"status": "ok"})
 
 urlpatterns = [
-    path('ms-agenda/api/v1/', include('agenda.urls')),
-    path('ms-agenda/', healthcheck, name='healthcheck'),
+    path('', healthcheck, name='healthcheck'),
+    path('api/v1/', include('agenda.urls')),
     path('admin/', admin.site.urls),
 ] 
