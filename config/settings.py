@@ -63,8 +63,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
 DB_ENGINE = os.environ.get('DB_ENGINE', 'django.db.backends.postgresql')
-print(os.environ.get('DB_ENGINE'))
-print(DB_ENGINE)
+
 if DB_ENGINE == 'django.db.backends.sqlite3':
     DATABASES = {
         'default': {
@@ -83,8 +82,6 @@ else:
             'PORT': os.environ.get('DB_PORT', '5432'),
         }
     }
-
-print(DATABASES)
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
