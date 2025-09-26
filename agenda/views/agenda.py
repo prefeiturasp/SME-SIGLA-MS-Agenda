@@ -8,11 +8,11 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from datetime import timedelta
 
-from .models import Agenda
-from .serializers import (
+from agenda.models import Agenda
+from agenda.serializers import (
     AgendaSerializer,
 )
-from .utils import CustomPagination
+from agenda.utils import CustomPagination
 
 
 class AgendaViewSet(viewsets.ModelViewSet):
