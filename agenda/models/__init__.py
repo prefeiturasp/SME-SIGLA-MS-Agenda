@@ -7,10 +7,5 @@ __all__ = [
     'BaseModel',
     'Agenda',
     # Constants
-    'PROCESSO_STATUS_CHOICES',
-    'PROCESSO_TIPOS_CHOICES',
-    'MIN_PRIORIDADE',
-    'MAX_PRIORIDADE',
-    'MIN_VAGAS',
-    'MAX_VAGAS',
+    'MODALIDADE_CHOICES',
 ] 
