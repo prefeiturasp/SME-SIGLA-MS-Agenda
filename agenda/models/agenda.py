@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.contrib.postgres.fields import ArrayField
 
 from auditlog.registry import auditlog
 
@@ -16,6 +17,7 @@ class Agenda(BaseModel):
     processo_convocacao_nome = models.CharField(max_length=200, verbose_name="Nome do Processo de Convocação")
     cargo_uuid = models.UUIDField(verbose_name="UUID do Cargo")
     cargo_nome = models.CharField(max_length=200, verbose_name="Nome do Cargo")
+    cargo_codigo = models.CharField(max_length=20, verbose_name="Código do Cargo", default="")
     data_escolha = models.DateTimeField(verbose_name="Data de Publicação", default=timezone.now)
 
     modalidade = models.CharField(
@@ -61,6 +63,13 @@ class Agenda(BaseModel):
         verbose_name="Hora de Fim da Convocação",
         blank=True,
         null=True
+    )
+    candidatos_uuids = ArrayField(
+        base_field=models.UUIDField(),
+        default=list,
+        blank=True,
+        null=True,
+        verbose_name="UUIDs dos Candidatos"
     )
 
     class Meta:

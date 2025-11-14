@@ -23,13 +23,13 @@ class AgendaAdmin(admin.ModelAdmin):
             'fields': ('processo_convocacao_uuid', 'processo_convocacao_nome')
         }),
         ('Cargo', {
-            'fields': ('cargo_uuid', 'cargo_nome')
+            'fields': ('cargo_uuid', 'cargo_nome', 'cargo_codigo')
         }),
         ('Datas', {
             'fields': ('data_escolha', 'escolha_em', 'nomeacao_em')
         }),
         ('Informações da Agenda', {
-            'fields': ('modalidade', 'classificacao', 'sessao', 'retardatario')
+            'fields': ('modalidade', 'classificacao', 'sessao', 'retardatario', 'candidatos_uuids')
         }),
         ('Horários de Convocação', {
             'fields': ('hora_convocacao_inicio', 'hora_convocacao_fim'),
