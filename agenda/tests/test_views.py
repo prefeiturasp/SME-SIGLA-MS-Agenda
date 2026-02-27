@@ -1,17 +1,16 @@
 """
 Testes unitários para as views do app agenda usando pytest.
 """
-import uuid
-from datetime import timedelta
-from unittest.mock import patch
-
 import pytest
 from django.urls import reverse
 from django.utils import timezone
-from rest_framework import status
 from rest_framework.test import APIClient
+from rest_framework import status
+from datetime import timedelta
+import uuid
 
 from ..models import Agenda
+from ..serializers import AgendaSerializer
 
 
 pytestmark = pytest.mark.django_db
@@ -61,32 +60,14 @@ def test_agenda_list(client, agenda):
     assert response.data['results'][0]['processo_convocacao_nome'] == agenda.processo_convocacao_nome
 
 
-@patch('agenda.views.agenda.CandidatosApiService')
-def test_agenda_create(mock_service_class, client):
-    """Create aceita payload com agendas, candidatos_uuids, processo_uuid, processo_nome."""
-    cand_uuid_1 = uuid.uuid4()
-    cand_uuid_2 = uuid.uuid4()
-    processo_uuid = uuid.uuid4()
-    cargo_uuid = uuid.uuid4()
-
-    mock_service_class.return_value.buscar_por_uuids_ordenado_por_ranking_escolha.return_value = [
-        {'uuid': cand_uuid_1, 'ranking_escolha': 1},
-        {'uuid': cand_uuid_2, 'ranking_escolha': 2},
-    ]
-
+def test_agenda_create(client):
     url = reverse('agenda-list')
     data = {
-        'agendas': [
-            {
-                'cargo_uuid': str(cargo_uuid),
-                'cargo_nome': 'Cargo Novo',
-                'classificacao': 2,
-                'data_escolha': (timezone.now() + timedelta(days=30)).isoformat(),
-            }
-        ],
-        'candidatos_uuids': [str(cand_uuid_1), str(cand_uuid_2)],
-        'processo_uuid': str(processo_uuid),
-        'processo_nome': 'Processo Novo',
+        'processo_convocacao_uuid': str(uuid.uuid4()),
+        'processo_convocacao_nome': 'Processo Novo',
+        'cargo_uuid': str(uuid.uuid4()),
+        'cargo_nome': 'Cargo Novo',
+        'data_escolha': (timezone.now() + timedelta(days=30)).isoformat(),
     }
 
     response = client.post(url, data, format='json')
@@ -97,8 +78,6 @@ def test_agenda_create(mock_service_class, client):
     item = Agenda.objects.first()
     assert item.processo_convocacao_nome == 'Processo Novo'
     assert item.cargo_nome == 'Cargo Novo'
-    assert item.processo_convocacao_uuid == processo_uuid
-    assert item.candidatos_uuids == [str(cand_uuid_1), str(cand_uuid_2)]
 
 
 def test_agenda_retrieve(client, agenda):
