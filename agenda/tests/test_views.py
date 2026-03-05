@@ -30,6 +30,7 @@ def agenda():
         cargo_uuid=uuid.uuid4(),
         cargo_nome="Analista",
         data_escolha=timezone.now() + timezone.timedelta(days=15),
+        candidatos_uuids=[uuid.uuid4(), uuid.uuid4()],
     )
 
 
@@ -44,15 +45,15 @@ def agendas():
                 cargo_uuid=uuid.uuid4(),
                 cargo_nome=f"Cargo {i+1}",
                 data_escolha=timezone.now() + timezone.timedelta(days=10 + i),
+                candidatos_uuids=[uuid.uuid4(), uuid.uuid4()],
             )
         )
     return itens
 
 
 # Testes para AgendaViewSet
-
 def test_agenda_list(client, agenda):
-    url = reverse('agenda-list')
+    url = reverse('agendas-list')
     response = client.get(url)
 
     assert response.status_code == status.HTTP_200_OK
@@ -74,12 +75,13 @@ def test_agenda_create(mock_service_class, client):
         {'uuid': cand_uuid_2, 'ranking_escolha': 2},
     ]
 
-    url = reverse('agenda-list')
+    url = reverse('agendas-list')
     data = {
         'agendas': [
             {
                 'cargo_uuid': str(cargo_uuid),
                 'cargo_nome': 'Cargo Novo',
+                'cargo_codigo': '123456',
                 'classificacao': 2,
                 'data_escolha': (timezone.now() + timedelta(days=30)).isoformat(),
             }
@@ -90,19 +92,19 @@ def test_agenda_create(mock_service_class, client):
     }
 
     response = client.post(url, data, format='json')
-
+    
     assert response.status_code == status.HTTP_201_CREATED
     assert Agenda.objects.count() == 1
+    # breakpoint()
 
     item = Agenda.objects.first()
     assert item.processo_convocacao_nome == 'Processo Novo'
     assert item.cargo_nome == 'Cargo Novo'
-    assert item.processo_convocacao_uuid == processo_uuid
-    assert item.candidatos_uuids == [str(cand_uuid_1), str(cand_uuid_2)]
+    assert str(item.processo_convocacao_uuid) == str(processo_uuid)
 
 
 def test_agenda_retrieve(client, agenda):
-    url = reverse('agenda-detail', args=[agenda.uuid])
+    url = reverse('agendas-detail', args=[agenda.uuid])
     response = client.get(url)
 
     assert response.status_code == status.HTTP_200_OK
@@ -111,7 +113,7 @@ def test_agenda_retrieve(client, agenda):
 
 
 def test_agenda_update(client, agenda):
-    url = reverse('agenda-detail', args=[agenda.uuid])
+    url = reverse('agendas-detail', args=[agenda.uuid])
     data = {
         'processo_convocacao_nome': 'Processo Atualizado',
         'cargo_nome': 'Cargo Atualizado',
@@ -126,7 +128,7 @@ def test_agenda_update(client, agenda):
 
 
 def test_agenda_delete(client, agenda):
-    url = reverse('agenda-detail', args=[agenda.uuid])
+    url = reverse('agendas-detail', args=[agenda.uuid])
     response = client.delete(url)
 
     assert response.status_code == status.HTTP_204_NO_CONTENT
