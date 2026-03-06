@@ -1,16 +1,17 @@
 """
 Testes unitários para as views do app agenda usando pytest.
 """
+import uuid
+from datetime import timedelta
+from unittest.mock import patch
+
 import pytest
 from django.urls import reverse
 from django.utils import timezone
-from rest_framework.test import APIClient
 from rest_framework import status
-from datetime import timedelta
-import uuid
+from rest_framework.test import APIClient
 
 from ..models import Agenda
-from ..serializers import AgendaSerializer
 
 
 pytestmark = pytest.mark.django_db
@@ -29,6 +30,7 @@ def agenda():
         cargo_uuid=uuid.uuid4(),
         cargo_nome="Analista",
         data_escolha=timezone.now() + timezone.timedelta(days=15),
+        candidatos_uuids=[uuid.uuid4(), uuid.uuid4()],
     )
 
 
@@ -43,15 +45,15 @@ def agendas():
                 cargo_uuid=uuid.uuid4(),
                 cargo_nome=f"Cargo {i+1}",
                 data_escolha=timezone.now() + timezone.timedelta(days=10 + i),
+                candidatos_uuids=[uuid.uuid4(), uuid.uuid4()],
             )
         )
     return itens
 
 
 # Testes para AgendaViewSet
-
 def test_agenda_list(client, agenda):
-    url = reverse('agenda-list')
+    url = reverse('agendas-list')
     response = client.get(url)
 
     assert response.status_code == status.HTTP_200_OK
@@ -60,28 +62,49 @@ def test_agenda_list(client, agenda):
     assert response.data['results'][0]['processo_convocacao_nome'] == agenda.processo_convocacao_nome
 
 
-def test_agenda_create(client):
-    url = reverse('agenda-list')
+@patch('agenda.views.agenda.CandidatosApiService')
+def test_agenda_create(mock_service_class, client):
+    """Create aceita payload com agendas, candidatos_uuids, processo_uuid, processo_nome."""
+    cand_uuid_1 = uuid.uuid4()
+    cand_uuid_2 = uuid.uuid4()
+    processo_uuid = uuid.uuid4()
+    cargo_uuid = uuid.uuid4()
+
+    mock_service_class.return_value.buscar_por_uuids_ordenado_por_ranking_escolha.return_value = [
+        {'uuid': cand_uuid_1, 'ranking_escolha': 1},
+        {'uuid': cand_uuid_2, 'ranking_escolha': 2},
+    ]
+
+    url = reverse('agendas-list')
     data = {
-        'processo_convocacao_uuid': str(uuid.uuid4()),
-        'processo_convocacao_nome': 'Processo Novo',
-        'cargo_uuid': str(uuid.uuid4()),
-        'cargo_nome': 'Cargo Novo',
-        'data_escolha': (timezone.now() + timedelta(days=30)).isoformat(),
+        'agendas': [
+            {
+                'cargo_uuid': str(cargo_uuid),
+                'cargo_nome': 'Cargo Novo',
+                'cargo_codigo': '123456',
+                'classificacao': 2,
+                'data_escolha': (timezone.now() + timedelta(days=30)).isoformat(),
+            }
+        ],
+        'candidatos_uuids': [str(cand_uuid_1), str(cand_uuid_2)],
+        'processo_uuid': str(processo_uuid),
+        'processo_nome': 'Processo Novo',
     }
 
     response = client.post(url, data, format='json')
-
+    
     assert response.status_code == status.HTTP_201_CREATED
     assert Agenda.objects.count() == 1
+    # breakpoint()
 
     item = Agenda.objects.first()
     assert item.processo_convocacao_nome == 'Processo Novo'
     assert item.cargo_nome == 'Cargo Novo'
+    assert str(item.processo_convocacao_uuid) == str(processo_uuid)
 
 
 def test_agenda_retrieve(client, agenda):
-    url = reverse('agenda-detail', args=[agenda.uuid])
+    url = reverse('agendas-detail', args=[agenda.uuid])
     response = client.get(url)
 
     assert response.status_code == status.HTTP_200_OK
@@ -90,7 +113,7 @@ def test_agenda_retrieve(client, agenda):
 
 
 def test_agenda_update(client, agenda):
-    url = reverse('agenda-detail', args=[agenda.uuid])
+    url = reverse('agendas-detail', args=[agenda.uuid])
     data = {
         'processo_convocacao_nome': 'Processo Atualizado',
         'cargo_nome': 'Cargo Atualizado',
@@ -105,7 +128,7 @@ def test_agenda_update(client, agenda):
 
 
 def test_agenda_delete(client, agenda):
-    url = reverse('agenda-detail', args=[agenda.uuid])
+    url = reverse('agendas-detail', args=[agenda.uuid])
     response = client.delete(url)
 
     assert response.status_code == status.HTTP_204_NO_CONTENT
