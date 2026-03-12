@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Agenda
+from agenda.models import Agenda, MODALIDADE_CHOICES
 
 
 class AgendaItemCreateSerializer(serializers.Serializer):
@@ -8,8 +8,6 @@ class AgendaItemCreateSerializer(serializers.Serializer):
     processo_convocacao_uuid e processo_convocacao_nome vêm do root (processo_uuid, processo_nome).
     """
     uuid = serializers.UUIDField(required=False, allow_null=True)
-    processo_convocacao_uuid = serializers.UUIDField(required=False)
-    processo_convocacao_nome = serializers.CharField(max_length=200, required=False, allow_blank=True)
     cargo_uuid = serializers.UUIDField(required=True)
     cargo_nome = serializers.CharField(max_length=200, required=True)
     cargo_codigo = serializers.CharField(max_length=20, required=False, default='', allow_blank=True)
@@ -22,12 +20,6 @@ class AgendaItemCreateSerializer(serializers.Serializer):
     retardatario = serializers.BooleanField(required=False, default=False, allow_null=True)
     hora_convocacao_inicio = serializers.TimeField(required=False, allow_null=True)
     hora_convocacao_fim = serializers.TimeField(required=False, allow_null=True)
-    candidatos_uuids = serializers.ListField(
-        child=serializers.UUIDField(),
-        required=False,
-        allow_empty=True,
-        default=list
-    )
 
 
 class CreateAgendasPayloadSerializer(serializers.Serializer):
