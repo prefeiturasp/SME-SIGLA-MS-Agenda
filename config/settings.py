@@ -169,3 +169,6 @@ SPECTACULAR_SETTINGS = {
 
 # URL base da API de candidatos (ms-candidatos) para buscar habilitados por UUIDs
 CANDIDATOS_API_URL = os.environ.get('CANDIDATOS_API_URL', 'http://localhost:8000')
+
+# URL base da API de escolhas (ms-escolhas)
+ESCOLHAS_API_URL = os.environ.get('ESCOLHAS_API_URL', 'http://localhost:8004')

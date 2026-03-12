@@ -19,6 +19,8 @@ from agenda.serializers import (
 )
 from agenda.utils import CustomPagination
 from agenda.services.candidatos_api_service import CandidatosApiService
+from agenda.services.escolhas_api_service import EscolhasApiService
+from agenda.exceptions import AgendaOnlineJaExisteException
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +47,40 @@ class AgendaViewSet(viewsets.ModelViewSet):
         if self.action in ['list', 'retrieve']:
             return AgendaListSerializer
         return AgendaCreateSerializer
-    
+
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        results = response.data.get('results', [])
+        if results and (results[0].get('modalidade') or '').upper() == 'ONLINE':
+            primeira_agenda = results[0]
+            processo_uuid = primeira_agenda.get('processo_convocacao_uuid')
+            candidatos_uuids_agenda = primeira_agenda.get('candidatos_uuids') or []
+            escolhas_service = EscolhasApiService(
+                base_url=settings.ESCOLHAS_API_URL,
+            )
+            try:
+                escolhas_data = escolhas_service.buscar_escolhas_por_processo_uuid(
+                    str(processo_uuid),
+                )
+            except RequestException as exc:
+                logger.warning(
+                    'Erro ao buscar escolhas por processo_uuid=%s: %s',
+                    processo_uuid,
+                    exc,
+                )
+            escolhas_lista = escolhas_data if isinstance(escolhas_data, list) else escolhas_data.get('results', escolhas_data) or []
+            escolhas_candidato_uuids = {
+                str(item.get('candidato_uuid'))
+                for item in escolhas_lista
+                if item.get('candidato_uuid') is not None
+            }
+            candidatos_uuids_restantes = [
+                str(cand_uuid) for cand_uuid in candidatos_uuids_agenda
+                if str(cand_uuid) not in escolhas_candidato_uuids
+            ]
+            response.data['candidatos_uuids_restantes'] = candidatos_uuids_restantes
+        return response
+
     def create(self, request, *args, **kwargs):
         """
         Cria ou atualiza várias agendas a partir do payload com estrutura:
@@ -61,7 +96,6 @@ class AgendaViewSet(viewsets.ModelViewSet):
         payload_serializer = CreateAgendasPayloadSerializer(data=request.data)
         payload_serializer.is_valid(raise_exception=True)
         data = payload_serializer.validated_data
-
         agendas_data = data['agendas']
         candidatos_uuids = data['candidatos_uuids']
         processo_uuid = data['processo_uuid']
@@ -95,16 +129,17 @@ class AgendaViewSet(viewsets.ModelViewSet):
         agendas_atualizadas = []
 
         for item in agendas_data:
-            qty = item.get('classificacao') or 0
-            slice_uuids = ordered_candidatos_uuids[cursor:cursor + qty]
-            cursor += qty
-
+            if not item.get('retardatario'):
+                qty = item.get('classificacao') or 0
+                slice_uuids = ordered_candidatos_uuids[cursor:cursor + qty]
+                cursor += qty
+            else:
+                slice_uuids = ordered_candidatos_uuids[:item.get('classificacao')]
             # Montar dados da agenda com processo e candidatos fatiados
             agenda_item = dict(item)
             agenda_item['processo_convocacao_uuid'] = processo_uuid
             agenda_item['processo_convocacao_nome'] = processo_nome
             agenda_item['candidatos_uuids'] = slice_uuids
-
             uuid_provido = agenda_item.get('uuid')
 
             if uuid_provido:
