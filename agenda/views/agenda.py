@@ -68,17 +68,18 @@ class AgendaViewSet(viewsets.ModelViewSet):
                     processo_uuid,
                     exc,
                 )
-            escolhas_lista = escolhas_data if isinstance(escolhas_data, list) else escolhas_data.get('results', escolhas_data) or []
-            escolhas_candidato_uuids = {
-                str(item.get('candidato_uuid'))
-                for item in escolhas_lista
-                if item.get('candidato_uuid') is not None
-            }
-            candidatos_uuids_restantes = [
-                str(cand_uuid) for cand_uuid in candidatos_uuids_agenda
-                if str(cand_uuid) not in escolhas_candidato_uuids
-            ]
-            response.data['candidatos_uuids_restantes'] = candidatos_uuids_restantes
+            else:
+                escolhas_lista = escolhas_data if isinstance(escolhas_data, list) else escolhas_data.get('results', escolhas_data) or []
+                escolhas_candidato_uuids = {
+                    str(item.get('candidato_uuid'))
+                    for item in escolhas_lista
+                    if item.get('candidato_uuid') is not None
+                }
+                candidatos_uuids_restantes = [
+                    str(cand_uuid) for cand_uuid in candidatos_uuids_agenda
+                    if str(cand_uuid) not in escolhas_candidato_uuids
+                ]
+                response.data['candidatos_uuids_restantes'] = candidatos_uuids_restantes
         return response
 
     def create(self, request, *args, **kwargs):
