@@ -68,14 +68,25 @@ class CandidatosApiService:
                 "headers": self._headers,
             }
         )
-        response = requests.post(
-            url,
-            params=params,
-            json=payload,
-            headers=self._headers,
-            timeout=self.timeout_seconds,
-        )
-        response.raise_for_status()
+        try:
+            response = requests.post(
+                url,
+                params=params,
+                json=payload,
+                headers=self._headers,
+                timeout=self.timeout_seconds,
+            )
+            response.raise_for_status()
+        except RequestException as exc:
+            logger.error(
+                'Erro ao buscar candidatos por UUIDs',
+                extra={
+                    "correlation_id": get_correlation_id(),
+                    "method": "POST",
+                    "url": url,
+                }
+            )
+            raise
 
         data = response.json()
         results = data.get('results', data) if isinstance(data, dict) else data
