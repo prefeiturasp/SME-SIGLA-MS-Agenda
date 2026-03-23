@@ -6,6 +6,8 @@ from typing import List, Dict, Any
 
 import requests
 from requests import RequestException
+from agenda.middleware import get_correlation_id
+
 
 logger = logging.getLogger(__name__)
 
@@ -54,6 +56,18 @@ class CandidatosApiService:
         }
         payload = {'uuids': [str(u) for u in uuids]}
 
+        logger.info(
+            'Buscando candidatos por UUIDs',
+            extra={
+                "correlation_id": get_correlation_id(),
+                "method": "POST",
+                "url": url,
+                "params": params,
+                "payload": payload,
+                "fields": fields,
+                "headers": self._headers,
+            }
+        )
         response = requests.post(
             url,
             params=params,
