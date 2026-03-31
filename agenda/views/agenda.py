@@ -8,7 +8,9 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.filters import SearchFilter
+
+from agenda.filters import AgendaOrderingFilter
 from requests import RequestException
 
 from agenda.models import Agenda
@@ -21,6 +23,8 @@ from agenda.utils import CustomPagination
 from agenda.services.candidatos_api_service import CandidatosApiService
 from agenda.services.escolhas_api_service import EscolhasApiService
 from agenda.exceptions import AgendaOnlineJaExisteException
+from agenda.middleware import get_correlation_id
+
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +35,7 @@ class AgendaViewSet(viewsets.ModelViewSet):
     """
     queryset = Agenda.objects.all()
     permission_classes = [AllowAny]
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filter_backends = [DjangoFilterBackend, SearchFilter, AgendaOrderingFilter]
     filterset_fields = ['processo_convocacao_uuid', 'cargo_uuid']
     search_fields = ['processo_convocacao_nome', 'cargo_nome']
     ordering_fields = ['data_escolha', 'hora_convocacao_inicio', 'criado_em']
@@ -49,6 +53,16 @@ class AgendaViewSet(viewsets.ModelViewSet):
         return AgendaCreateSerializer
 
     def list(self, request, *args, **kwargs):
+        logger.info(
+            'Listando agendas',
+            extra={
+                "correlation_id": get_correlation_id(),
+                "method": request.method,
+                "path": request.path,
+                "params": request.query_params,
+                "user": request.user,
+            }
+        )
         response = super().list(request, *args, **kwargs)
         results = response.data.get('results', [])
         if results and (results[0].get('modalidade') or '').upper() == 'ONLINE':
@@ -94,6 +108,19 @@ class AgendaViewSet(viewsets.ModelViewSet):
         por ranking_escolha ascendente; cada agenda recebe um fatia da lista conforme
         o campo classificacao.
         """
+        logger.info(
+            'Criando agendas',
+            extra={
+                "correlation_id": get_correlation_id(),
+                "method": request.method,
+                "path": request.path,
+                "processo_uuid": request.data.get('processo_uuid'),
+                "processo_nome": request.data.get('processo_nome'),
+                "candidatos_uuids": len(request.data.get('candidatos_uuids', [])),
+                "agendas": len(request.data.get('agendas', [])),
+                "user": request.user,
+            }
+        )
         payload_serializer = CreateAgendasPayloadSerializer(data=request.data)
         payload_serializer.is_valid(raise_exception=True)
         data = payload_serializer.validated_data
@@ -166,4 +193,18 @@ class AgendaViewSet(viewsets.ModelViewSet):
         todas_agendas = agendas_criadas + agendas_atualizadas
         response_serializer = AgendaListSerializer(todas_agendas, many=True)
         status_code = status.HTTP_201_CREATED if agendas_criadas else status.HTTP_200_OK
+        logger.info(
+            'Agendas criadas',
+            extra={
+                "correlation_id": get_correlation_id(),
+                "method": request.method,
+                "path": request.path,
+                "processo_uuid": processo_uuid,
+                "processo_nome": processo_nome,
+                "agendas_criadas": len(agendas_criadas),
+                "agendas_atualizadas": len(agendas_atualizadas),
+                "todas_agendas": len(todas_agendas),
+                "status_code": status_code,
+            }
+        )
         return Response(response_serializer.data, status=status_code)
