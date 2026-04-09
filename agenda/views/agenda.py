@@ -5,6 +5,7 @@ import logging
 
 from django.conf import settings
 from rest_framework import viewsets, status
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
@@ -208,3 +209,28 @@ class AgendaViewSet(viewsets.ModelViewSet):
             }
         )
         return Response(response_serializer.data, status=status_code)
+
+    @action(detail=False, methods=['delete'], url_path='por-processo')
+    def excluir_por_processo(self, request):
+        """
+        Remove todas as agendas vinculadas ao processo de convocação informado.
+        Query: processo_uuid=<uuid>
+        """
+        processo_uuid = request.query_params.get('processo_uuid')
+        if not processo_uuid:
+            return Response(
+                {'detail': 'processo_uuid é obrigatório.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        deleted, _ = Agenda.objects.filter(
+            processo_convocacao_uuid=processo_uuid,
+        ).delete()
+        logger.info(
+            'Agendas excluídas por processo',
+            extra={
+                "correlation_id": get_correlation_id(),
+                "processo_uuid": processo_uuid,
+                "excluidas": deleted,
+            },
+        )
+        return Response({'excluidas': deleted}, status=status.HTTP_200_OK)
