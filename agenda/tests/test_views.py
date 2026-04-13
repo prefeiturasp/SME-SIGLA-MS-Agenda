@@ -4,6 +4,7 @@ Testes unitários para as views do app agenda usando pytest.
 import uuid
 from datetime import timedelta
 from unittest.mock import patch
+from urllib.parse import urlencode
 
 import pytest
 from django.urls import reverse
@@ -362,3 +363,65 @@ def test_agenda_delete(client, agenda):
 
     assert response.status_code == status.HTTP_204_NO_CONTENT
     assert Agenda.objects.count() == 0
+
+
+# ---------------------------------------------------------------------------
+# DELETE /agendas/por-processo/?processo_uuid= (excluir_por_processo)
+# ---------------------------------------------------------------------------
+
+def test_excluir_por_processo_sem_processo_uuid_retorna_400(client):
+    url = reverse('agendas-excluir-por-processo')
+    response = client.delete(url)
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.data['detail'] == 'processo_uuid é obrigatório.'
+
+
+def test_excluir_por_processo_remove_apenas_agendas_do_processo(client):
+    processo_a = uuid.uuid4()
+    processo_b = uuid.uuid4()
+    cargo_a = uuid.uuid4()
+    cargo_b = uuid.uuid4()
+
+    Agenda.objects.create(
+        processo_convocacao_uuid=processo_a,
+        processo_convocacao_nome='Processo A',
+        cargo_uuid=cargo_a,
+        cargo_nome='Cargo A',
+        data_escolha=timezone.now(),
+        candidatos_uuids=[],
+    )
+    Agenda.objects.create(
+        processo_convocacao_uuid=processo_a,
+        processo_convocacao_nome='Processo A',
+        cargo_uuid=cargo_a,
+        cargo_nome='Cargo A2',
+        data_escolha=timezone.now(),
+        candidatos_uuids=[],
+    )
+    outra = Agenda.objects.create(
+        processo_convocacao_uuid=processo_b,
+        processo_convocacao_nome='Processo B',
+        cargo_uuid=cargo_b,
+        cargo_nome='Cargo B',
+        data_escolha=timezone.now(),
+        candidatos_uuids=[],
+    )
+
+    base = reverse('agendas-excluir-por-processo')
+    url = f"{base}?{urlencode({'processo_uuid': str(processo_a)})}"
+    response = client.delete(url)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data['excluidas'] == 2
+    assert Agenda.objects.count() == 1
+    assert Agenda.objects.filter(uuid=outra.uuid).exists()
+
+
+def test_excluir_por_processo_sem_agendas_retorna_zero(client):
+    processo_uuid = uuid.uuid4()
+    base = reverse('agendas-excluir-por-processo')
+    url = f"{base}?{urlencode({'processo_uuid': str(processo_uuid)})}"
+    response = client.delete(url)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data['excluidas'] == 0
