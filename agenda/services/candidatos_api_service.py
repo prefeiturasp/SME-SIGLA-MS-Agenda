@@ -6,7 +6,8 @@ from typing import List, Dict, Any
 
 import requests
 from requests import RequestException
-from agenda.middleware import get_correlation_id
+from sigla_sdk.context import get_correlation_id
+from sigla_sdk.http.api_client import http_client
 
 
 logger = logging.getLogger(__name__)
@@ -69,7 +70,7 @@ class CandidatosApiService:
             }
         )
         try:
-            response = requests.post(
+            response = http_client.post(
                 url,
                 params=params,
                 json=payload,

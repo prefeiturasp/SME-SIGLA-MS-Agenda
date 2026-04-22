@@ -24,7 +24,7 @@ from agenda.utils import CustomPagination
 from agenda.services.candidatos_api_service import CandidatosApiService
 from agenda.services.escolhas_api_service import EscolhasApiService
 from agenda.exceptions import AgendaOnlineJaExisteException
-from agenda.middleware import get_correlation_id
+from sigla_sdk.context import get_correlation_id
 
 
 logger = logging.getLogger(__name__)

@@ -34,7 +34,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'agenda.middleware.CorrelationIdMiddleware',
+    'sigla_sdk.middlewares.CorrelationIdMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -43,7 +43,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'auditlog.middleware.AuditlogMiddleware',
+    'sigla_sdk.middlewares.AuditlogJWTMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -113,7 +113,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # Em QA/prod o app fica atrás de um path (MS_PATH); STATIC_URL/MEDIA_URL precisam bater com o urlconf.
-_ms_path_segment = (MS_PATH or '/ms-admin-usuarios').strip('/')
+_ms_path_segment = (MS_PATH or '/ms-agenda').strip('/')
 if DJANGO_ENVIRONMENT != 'local':
     STATIC_URL = f'/{_ms_path_segment}/django_static/'
     MEDIA_URL = f'/{_ms_path_segment}/media/'
@@ -160,17 +160,14 @@ REST_FRAMEWORK = {
 }
 
 # AuditLog settings
-AUDITLOG_INCLUDE_ALL_MODELS = False 
-
-import threading
-_thread_locals = threading.local()
+AUDITLOG_INCLUDE_ALL_MODELS = False
 
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
         'json': {
-            '()': 'agenda.logging_utils.CustomJsonFormatter', # Usa sua classe
+            '()': 'sigla_sdk.logging.json_formatter.CustomJsonFormatter',
             # Estes campos do logging padrão virarão chaves no JSON
             'format': '%(levelname)s %(asctime)s %(module)s %(filename)s %(lineno)d %(funcName)s %(message)s'
         },
