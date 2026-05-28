@@ -1,8 +1,9 @@
 """
 Serviço para integração com a API de escolhas.
 """
+
 import logging
-from typing import Any, Dict, List
+from typing import Any
 
 from sigla_sdk.http.api_client import http_client
 
@@ -15,14 +16,16 @@ class EscolhasApiService:
     """
 
     def __init__(self, base_url: str, timeout_seconds: int = 30):
-        self.base_url = base_url.rstrip('/')
+        self.base_url = base_url.rstrip("/")
         self.timeout_seconds = timeout_seconds
         self._headers = {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
+            "Accept": "application/json",
+            "Content-Type": "application/json",
         }
 
-    def buscar_escolhas_por_processo_uuid(self, vaga_escola__lote__processo_uuid: str) -> Dict[str, Any]:
+    def buscar_escolhas_por_processo_uuid(
+        self, vaga_escola__lote__processo_uuid: str
+    ) -> dict[str, Any]:
         """
         GET para /api/v1/escolhas/?vaga_escola__lote__processo_uuid=<uuid>
         Retorna a resposta da API de escolhas filtrada por processo.
@@ -38,10 +41,12 @@ class EscolhasApiService:
         """
         url = f"{self.base_url}/api/v1/escolhas/"
         params = {
-            'vaga_escola__lote__processo_uuid': str(vaga_escola__lote__processo_uuid),
-            'no_page': True,
-            'fields': 'candidato_uuid',
-            }
+            "vaga_escola__lote__processo_uuid": str(
+                vaga_escola__lote__processo_uuid
+            ),
+            "no_page": True,
+            "fields": "candidato_uuid",
+        }
 
         response = http_client.get(
             url,
@@ -53,7 +58,7 @@ class EscolhasApiService:
 
         data = response.json()
         logger.info(
-            'Escolhas buscadas por vaga_escola__lote__processo_uuid=%s',
+            "Escolhas buscadas por vaga_escola__lote__processo_uuid=%s",
             vaga_escola__lote__processo_uuid,
         )
         return data
