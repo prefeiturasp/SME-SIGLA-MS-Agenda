@@ -1,9 +1,11 @@
 """
 Configuração para testes do app agenda.
 """
+
+import uuid
+
 import pytest
 from django.utils import timezone
-import uuid
 
 from ..models import Agenda
 
@@ -12,6 +14,7 @@ from ..models import Agenda
 def agenda():
     """Cria uma Agenda de teste."""
     from django.utils import timezone
+
     return Agenda.objects.create(
         processo_convocacao_uuid=uuid.uuid4(),
         processo_convocacao_nome="Processo Teste",
