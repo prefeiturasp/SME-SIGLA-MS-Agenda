@@ -1,4 +1,5 @@
 """Módulo serializers."""
+
 from rest_framework import serializers
 
 from agenda.models import Agenda
@@ -74,6 +75,7 @@ class AgendaListSerializer(serializers.ModelSerializer):
 
     class Meta:
         """Define Meta."""
+
         model = Agenda
         fields = [
             "uuid",
@@ -103,6 +105,7 @@ class AgendaCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         """Define Meta."""
+
         model = Agenda
         fields = [
             "uuid",

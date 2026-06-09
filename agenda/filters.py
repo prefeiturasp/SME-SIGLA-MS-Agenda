@@ -1,29 +1,39 @@
 """Filtros customizados para o módulo agenda."""
+
 from __future__ import annotations
+
 from typing import Any
+
 from django.db.models import Case, IntegerField, Value, When
 from rest_framework.filters import OrderingFilter
 
+
 class AgendaOrderingFilter(OrderingFilter):
-    """OrderingFilter que coloca agendas com modalidade ONLINE sempre primeiro,."""
+    """OrderingFilter que coloca agendas com modalidade ONLINE sempre."""
 
     def filter_queryset(self, request: Any, queryset: Any, view: Any) -> Any:
         """Executa filter queryset.
-        
+
         Args:
             self: Instância do objeto.
             request: Requisição HTTP recebida.
-            queryset: Parâmetro queryset da operação.
-            view: Parâmetro view da operação.
-        
+            queryset: Parâmetro queryset.
+            view: Parâmetro view.
+
         Returns:
             Resultado da operação.
-        
+
         Raises:
             Nenhuma exceção específica documentada.
         """
         ordering = self.get_ordering(request, queryset, view)
-        queryset = queryset.annotate(_online_first=Case(When(modalidade__iexact='ONLINE', then=Value(0)), default=Value(1), output_field=IntegerField()))
+        queryset = queryset.annotate(
+            _online_first=Case(
+                When(modalidade__iexact="ONLINE", then=Value(0)),
+                default=Value(1),
+                output_field=IntegerField(),
+            )
+        )
         if ordering:
-            return queryset.order_by('_online_first', *ordering)
-        return queryset.order_by('_online_first')
+            return queryset.order_by("_online_first", *ordering)
+        return queryset.order_by("_online_first")
