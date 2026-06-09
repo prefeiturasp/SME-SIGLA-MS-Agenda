@@ -5,11 +5,7 @@ from agenda.models import Agenda
 
 
 class AgendaItemCreateSerializer(serializers.Serializer):
-    """Serializer para cada item da lista 'agendas' no payload de criação.
-
-    processo_convocacao_uuid e processo_convocacao_nome vêm do root
-    (processo_uuid, processo_nome).
-    """
+    """Serializer para cada item da lista 'agendas' no payload de criação."""
 
     uuid = serializers.UUIDField(required=False, allow_null=True)
     cargo_uuid = serializers.UUIDField(required=True)
@@ -41,10 +37,7 @@ class AgendaItemCreateSerializer(serializers.Serializer):
 
 
 class CreateAgendasPayloadSerializer(serializers.Serializer):
-    """Valida o payload do create: agendas, candidatos_uuids,.
-
-    processo_uuid, processo_nome.
-    """
+    """Valida o payload do create: agendas, candidatos_uuids,."""
 
     agendas = serializers.ListField(
         child=AgendaItemCreateSerializer(),

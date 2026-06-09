@@ -34,6 +34,16 @@ class Agenda(BaseModel):
         db_table = 'agenda'
 
     def __str__(self) -> Any:
-        """Executa   str  ."""
+        """Executa   str  .
+        
+        Args:
+            self: Instância do objeto.
+        
+        Returns:
+            Resultado da operação.
+        
+        Raises:
+            Nenhuma exceção específica documentada.
+        """
         return f'{self.processo_convocacao_nome} - {self.cargo_nome}'
 auditlog.register(Agenda)

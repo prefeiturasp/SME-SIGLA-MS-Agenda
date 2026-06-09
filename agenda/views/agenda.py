@@ -32,17 +32,35 @@ class AgendaViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self) -> Any:
         """Retorna o serializer apropriado baseado na ação.
-
-        - AgendaListSerializer para listagem (list) e detalhes (retrieve)
-        - AgendaCreateSerializer para criação (create), atualização
-          (update) e atualização parcial (partial_update).
+        
+        Args:
+            self: Instância do objeto.
+        
+        Returns:
+            Valor calculado para o campo ou propriedade.
+        
+        Raises:
+            Nenhuma exceção específica documentada.
         """
         if self.action in ['list', 'retrieve']:
             return AgendaListSerializer
         return AgendaCreateSerializer
 
     def list(self, request: Any, *args: Any, **kwargs: Any) -> Any:
-        """Executa list."""
+        """Executa list.
+        
+        Args:
+            self: Instância do objeto.
+            request: Requisição HTTP recebida.
+            *args: Argumentos posicionais variáveis.
+            **kwargs: Argumentos nomeados variáveis.
+        
+        Returns:
+            Resposta HTTP com os dados serializados.
+        
+        Raises:
+            Nenhuma exceção específica documentada.
+        """
         logger.info('Listando agendas', extra={'correlation_id': get_correlation_id(), 'method': request.method, 'path': request.path, 'params': request.query_params, 'user': request.user})
         response = super().list(request, *args, **kwargs)
         results = response.data.get('results', [])
@@ -64,17 +82,18 @@ class AgendaViewSet(viewsets.ModelViewSet):
 
     def create(self, request: Any, *args: Any, **kwargs: Any) -> Any:
         """Cria ou atualiza várias agendas a partir do payload com estrutura:.
-
-        - agendas: lista de objetos agenda (cada um com classificacao
-          = quantidade de candidatos)
-        - candidatos_uuids: lista de UUIDs de candidatos
-        - processo_uuid: UUID do processo
-        - processo_nome: nome do processo.
-
-        Os candidatos são buscados na API de candidatos
-        (buscar-por-uuids), ordenados por ranking_escolha ascendente;
-        cada agenda recebe um fatia da lista conforme o campo
-        classificacao.
+        
+        Args:
+            self: Instância do objeto.
+            request: Requisição HTTP recebida.
+            *args: Argumentos posicionais variáveis.
+            **kwargs: Argumentos nomeados variáveis.
+        
+        Returns:
+            Resposta HTTP com os dados serializados.
+        
+        Raises:
+            Nenhuma exceção específica documentada.
         """
         logger.info('Criando agendas', extra={'correlation_id': get_correlation_id(), 'method': request.method, 'path': request.path, 'processo_uuid': request.data.get('processo_uuid'), 'processo_nome': request.data.get('processo_nome'), 'candidatos_uuids': len(request.data.get('candidatos_uuids', [])), 'agendas': len(request.data.get('agendas', [])), 'user': request.user})
         payload_serializer = CreateAgendasPayloadSerializer(data=request.data)
@@ -134,8 +153,16 @@ class AgendaViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['delete'], url_path='por-processo')
     def excluir_por_processo(self, request: Any) -> Any:
         """Remove todas as agendas vinculadas ao processo de convocação informado.
-
-        Query: processo_uuid=<uuid>.
+        
+        Args:
+            self: Instância do objeto.
+            request: Requisição HTTP recebida.
+        
+        Returns:
+            Resultado da operação.
+        
+        Raises:
+            Nenhuma exceção específica documentada.
         """
         processo_uuid = request.query_params.get('processo_uuid')
         if not processo_uuid:

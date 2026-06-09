@@ -9,7 +9,19 @@ class Command(BaseCommand):
     help = 'Remove todos os registros da tabela de agendas'
 
     def handle(self, *args: Any, **options: Any) -> None:
-        """Executa a lógica principal do comando."""
+        """Executa a lógica principal do comando.
+        
+        Args:
+            self: Instância do objeto.
+            *args: Argumentos posicionais variáveis.
+            **options: Parâmetro options da operação.
+        
+        Returns:
+            Não retorna valor.
+        
+        Raises:
+            Nenhuma exceção específica documentada.
+        """
         total_agendas = Agenda.objects.count()
         self.stdout.write(self.style.SUCCESS(f'Removendo {total_agendas} agendas...'))
         try:

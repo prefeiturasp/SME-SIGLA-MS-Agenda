@@ -8,23 +8,54 @@ import requests
 from agenda.services.escolhas_api_service import EscolhasApiService
 
 def test_escolhas_api_service_init_strips_trailing_slash() -> None:
-    """Verifica escolhas api service init strips trailing slash."""
+    """Verifica escolhas api service init strips trailing slash.
+    
+    Returns:
+        Não retorna valor.
+    
+    Raises:
+        Nenhuma exceção específica documentada.
+    """
     svc = EscolhasApiService(base_url='http://escolhas:8000/')
     assert svc.base_url == 'http://escolhas:8000'
 
 def test_escolhas_api_service_init_custom_timeout() -> None:
-    """Verifica escolhas api service init custom timeout."""
+    """Verifica escolhas api service init custom timeout.
+    
+    Returns:
+        Não retorna valor.
+    
+    Raises:
+        Nenhuma exceção específica documentada.
+    """
     svc = EscolhasApiService(base_url='http://x.com', timeout_seconds=15)
     assert svc.timeout_seconds == 15
 
 def test_escolhas_api_service_init_headers() -> None:
-    """Verifica escolhas api service init headers."""
+    """Verifica escolhas api service init headers.
+    
+    Returns:
+        Não retorna valor.
+    
+    Raises:
+        Nenhuma exceção específica documentada.
+    """
     svc = EscolhasApiService(base_url='http://x.com')
     assert svc._headers == {'Accept': 'application/json', 'Content-Type': 'application/json'}
 
 @patch('agenda.services.escolhas_api_service.http_client.get')
 def test_buscar_escolhas_por_processo_uuid_chama_url_params_headers_timeout(mock_http_client_get: Any) -> None:
-    """Verifica buscar escolhas por processo uuid chama url params headers timeout."""
+    """Verifica buscar escolhas por processo uuid chama url params headers timeout.
+    
+    Args:
+        mock_http_client_get: Parâmetro mock http client get da operação.
+    
+    Returns:
+        Não retorna valor.
+    
+    Raises:
+        Nenhuma exceção específica documentada.
+    """
     mock_http_client_get.return_value.raise_for_status = MagicMock()
     mock_http_client_get.return_value.json.return_value = {'results': [], 'count': 0}
     processo_uuid = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
@@ -41,7 +72,17 @@ def test_buscar_escolhas_por_processo_uuid_chama_url_params_headers_timeout(mock
 
 @patch('agenda.services.escolhas_api_service.http_client.get')
 def test_buscar_escolhas_por_processo_uuid_converte_uuid_para_str(mock_http_client_get: Any) -> None:
-    """Verifica buscar escolhas por processo uuid converte uuid para str."""
+    """Verifica buscar escolhas por processo uuid converte uuid para str.
+    
+    Args:
+        mock_http_client_get: Parâmetro mock http client get da operação.
+    
+    Returns:
+        Não retorna valor.
+    
+    Raises:
+        Nenhuma exceção específica documentada.
+    """
     mock_http_client_get.return_value.raise_for_status = MagicMock()
     mock_http_client_get.return_value.json.return_value = {}
     u = uuid.uuid4()
@@ -51,7 +92,17 @@ def test_buscar_escolhas_por_processo_uuid_converte_uuid_para_str(mock_http_clie
 
 @patch('agenda.services.escolhas_api_service.http_client.get')
 def test_buscar_escolhas_por_processo_uuid_raise_for_status_propaga(mock_http_client_get: Any) -> None:
-    """Verifica buscar escolhas por processo uuid raise for status propaga."""
+    """Verifica buscar escolhas por processo uuid raise for status propaga.
+    
+    Args:
+        mock_http_client_get: Parâmetro mock http client get da operação.
+    
+    Returns:
+        Não retorna valor.
+    
+    Raises:
+        Nenhuma exceção específica documentada.
+    """
     mock_http_client_get.return_value.raise_for_status.side_effect = requests.HTTPError('404')
     svc = EscolhasApiService(base_url='http://x.com')
     with pytest.raises(requests.HTTPError):
@@ -59,7 +110,17 @@ def test_buscar_escolhas_por_processo_uuid_raise_for_status_propaga(mock_http_cl
 
 @patch('agenda.services.escolhas_api_service.http_client.get')
 def test_buscar_escolhas_por_processo_uuid_request_exception_propaga(mock_http_client_get: Any) -> None:
-    """Verifica buscar escolhas por processo uuid request exception propaga."""
+    """Verifica buscar escolhas por processo uuid request exception propaga.
+    
+    Args:
+        mock_http_client_get: Parâmetro mock http client get da operação.
+    
+    Returns:
+        Não retorna valor.
+    
+    Raises:
+        Nenhuma exceção específica documentada.
+    """
     mock_http_client_get.side_effect = requests.RequestException('Connection refused')
     svc = EscolhasApiService(base_url='http://x.com')
     with pytest.raises(requests.RequestException):

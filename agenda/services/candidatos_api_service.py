@@ -12,28 +12,33 @@ class CandidatosApiService:
     """Serviço para chamar o endpoint de candidatos buscar-por-uuids."""
 
     def __init__(self, base_url: str, timeout_seconds: int=30) -> None:
-        """Executa   init  ."""
+        """Executa   init  .
+        
+        Args:
+            self: Instância do objeto.
+            base_url: Parâmetro base url da operação.
+            timeout_seconds: Parâmetro timeout seconds da operação.
+        
+        Raises:
+            Nenhuma exceção específica documentada.
+        """
         self.base_url = base_url.rstrip('/')
         self.timeout_seconds = timeout_seconds
         self._headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
 
     def buscar_por_uuids_ordenado_por_ranking_escolha(self, uuids: list[str], fields: str='uuid,ranking_escolha') -> list[dict[str, Any]]:
         """POST para /api/v1/habilitados/buscar-por-uuids/ com.
-
-        fields=uuid,ranking_escolha e order_by=ranking_escolha.
-        Retorna a lista de candidatos ordenada por ranking_escolha
-        de forma ascendente.
-
+        
         Args:
+            self: Instância do objeto.
             uuids: Lista de UUIDs dos candidatos.
             fields: Query string de campos (padrão: uuid,ranking_escolha).
-
+        
         Returns:
-            Lista de dicionários com os campos retornados pela API, ordenada
-            por ranking_escolha ascendente.
-
+            Lista com os registros resultantes.
+        
         Raises:
-            RequestException: Em caso de erro na requisição.
+            Nenhuma exceção específica documentada.
         """
         if not uuids:
             return []
@@ -53,7 +58,17 @@ class CandidatosApiService:
             results = []
 
         def _key(item: Any) -> Any:
-            """Executa  key."""
+            """Executa  key.
+            
+            Args:
+                item: Parâmetro item da operação.
+            
+            Returns:
+                Resultado da operação.
+            
+            Raises:
+                Nenhuma exceção específica documentada.
+            """
             r = item.get('ranking_escolha')
             if r is None:
                 return float('inf')

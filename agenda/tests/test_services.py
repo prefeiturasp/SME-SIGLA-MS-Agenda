@@ -12,38 +12,87 @@ import requests
 from agenda.services.candidatos_api_service import CandidatosApiService
 
 def test_init_strips_trailing_slash_from_base_url() -> None:
-    """Verifica init strips trailing slash from base url."""
+    """Verifica init strips trailing slash from base url.
+    
+    Returns:
+        Não retorna valor.
+    
+    Raises:
+        Nenhuma exceção específica documentada.
+    """
     svc = CandidatosApiService(base_url='http://localhost:8000/')
     assert svc.base_url == 'http://localhost:8000'
 
 def test_init_keeps_url_without_trailing_slash() -> None:
-    """Verifica init keeps url without trailing slash."""
+    """Verifica init keeps url without trailing slash.
+    
+    Returns:
+        Não retorna valor.
+    
+    Raises:
+        Nenhuma exceção específica documentada.
+    """
     svc = CandidatosApiService(base_url='http://api.example.com')
     assert svc.base_url == 'http://api.example.com'
 
 def test_init_default_timeout() -> None:
-    """Verifica init default timeout."""
+    """Verifica init default timeout.
+    
+    Returns:
+        Não retorna valor.
+    
+    Raises:
+        Nenhuma exceção específica documentada.
+    """
     svc = CandidatosApiService(base_url='http://x.com')
     assert svc.timeout_seconds == 30
 
 def test_init_custom_timeout() -> None:
-    """Verifica init custom timeout."""
+    """Verifica init custom timeout.
+    
+    Returns:
+        Não retorna valor.
+    
+    Raises:
+        Nenhuma exceção específica documentada.
+    """
     svc = CandidatosApiService(base_url='http://x.com', timeout_seconds=10)
     assert svc.timeout_seconds == 10
 
 def test_init_sets_headers() -> None:
-    """Verifica init sets headers."""
+    """Verifica init sets headers.
+    
+    Returns:
+        Não retorna valor.
+    
+    Raises:
+        Nenhuma exceção específica documentada.
+    """
     svc = CandidatosApiService(base_url='http://x.com')
     assert svc._headers == {'Accept': 'application/json', 'Content-Type': 'application/json'}
 
 def test_buscar_por_uuids_empty_list_returns_empty() -> None:
-    """Verifica buscar por uuids empty list returns empty."""
+    """Verifica buscar por uuids empty list returns empty.
+    
+    Returns:
+        Não retorna valor.
+    
+    Raises:
+        Nenhuma exceção específica documentada.
+    """
     svc = CandidatosApiService(base_url='http://x.com')
     result = svc.buscar_por_uuids_ordenado_por_ranking_escolha(uuids=[])
     assert result == []
 
 def test_buscar_por_uuids_empty_list_does_not_call_requests() -> None:
-    """Verifica buscar por uuids empty list does not call requests."""
+    """Verifica buscar por uuids empty list does not call requests.
+    
+    Returns:
+        Não retorna valor.
+    
+    Raises:
+        Nenhuma exceção específica documentada.
+    """
     svc = CandidatosApiService(base_url='http://x.com')
     with patch('agenda.services.candidatos_api_service.requests.post') as mock_post:
         svc.buscar_por_uuids_ordenado_por_ranking_escolha(uuids=[])
@@ -51,7 +100,17 @@ def test_buscar_por_uuids_empty_list_does_not_call_requests() -> None:
 
 @patch('agenda.services.candidatos_api_service.http_client.post')
 def test_buscar_por_uuids_calls_correct_url_and_params(mock_http_client_post: Any) -> None:
-    """Verifica buscar por uuids calls correct url and params."""
+    """Verifica buscar por uuids calls correct url and params.
+    
+    Args:
+        mock_http_client_post: Parâmetro mock http client post da operação.
+    
+    Returns:
+        Não retorna valor.
+    
+    Raises:
+        Nenhuma exceção específica documentada.
+    """
     mock_http_client_post.return_value.json.return_value = {'results': []}
     mock_http_client_post.return_value.raise_for_status = MagicMock()
     svc = CandidatosApiService(base_url='http://candidatos:8000')
@@ -66,7 +125,17 @@ def test_buscar_por_uuids_calls_correct_url_and_params(mock_http_client_post: An
 
 @patch('agenda.services.candidatos_api_service.http_client.post')
 def test_buscar_por_uuids_custom_fields_and_timeout(mock_http_client_post: Any) -> None:
-    """Verifica buscar por uuids custom fields and timeout."""
+    """Verifica buscar por uuids custom fields and timeout.
+    
+    Args:
+        mock_http_client_post: Parâmetro mock http client post da operação.
+    
+    Returns:
+        Não retorna valor.
+    
+    Raises:
+        Nenhuma exceção específica documentada.
+    """
     mock_http_client_post.return_value.json.return_value = {'results': []}
     mock_http_client_post.return_value.raise_for_status = MagicMock()
     svc = CandidatosApiService(base_url='http://x.com', timeout_seconds=5)
@@ -77,7 +146,17 @@ def test_buscar_por_uuids_custom_fields_and_timeout(mock_http_client_post: Any) 
 
 @patch('agenda.services.candidatos_api_service.http_client.post')
 def test_buscar_por_uuids_converts_uuids_to_strings(mock_http_client_post: Any) -> None:
-    """Verifica buscar por uuids converts uuids to strings."""
+    """Verifica buscar por uuids converts uuids to strings.
+    
+    Args:
+        mock_http_client_post: Parâmetro mock http client post da operação.
+    
+    Returns:
+        Não retorna valor.
+    
+    Raises:
+        Nenhuma exceção específica documentada.
+    """
     mock_http_client_post.return_value.json.return_value = {'results': []}
     mock_http_client_post.return_value.raise_for_status = MagicMock()
     u = uuid.uuid4()
@@ -87,7 +166,17 @@ def test_buscar_por_uuids_converts_uuids_to_strings(mock_http_client_post: Any) 
 
 @patch('agenda.services.candidatos_api_service.http_client.post')
 def test_buscar_por_uuids_uses_results_key_when_present(mock_http_client_post: Any) -> None:
-    """Verifica buscar por uuids uses results key when present."""
+    """Verifica buscar por uuids uses results key when present.
+    
+    Args:
+        mock_http_client_post: Parâmetro mock http client post da operação.
+    
+    Returns:
+        Não retorna valor.
+    
+    Raises:
+        Nenhuma exceção específica documentada.
+    """
     mock_http_client_post.return_value.raise_for_status = MagicMock()
     mock_http_client_post.return_value.json.return_value = {'results': [{'uuid': 'a', 'ranking_escolha': 1}, {'uuid': 'b', 'ranking_escolha': 2}], 'count': 2}
     svc = CandidatosApiService(base_url='http://x.com')
@@ -98,7 +187,17 @@ def test_buscar_por_uuids_uses_results_key_when_present(mock_http_client_post: A
 
 @patch('agenda.services.candidatos_api_service.http_client.post')
 def test_buscar_por_uuids_uses_data_as_list_when_no_results_key(mock_http_client_post: Any) -> None:
-    """Verifica buscar por uuids uses data as list when no results key."""
+    """Verifica buscar por uuids uses data as list when no results key.
+    
+    Args:
+        mock_http_client_post: Parâmetro mock http client post da operação.
+    
+    Returns:
+        Não retorna valor.
+    
+    Raises:
+        Nenhuma exceção específica documentada.
+    """
     mock_http_client_post.return_value.raise_for_status = MagicMock()
     mock_http_client_post.return_value.json.return_value = [{'uuid': 'x', 'ranking_escolha': 1}]
     svc = CandidatosApiService(base_url='http://x.com')
@@ -108,7 +207,17 @@ def test_buscar_por_uuids_uses_data_as_list_when_no_results_key(mock_http_client
 
 @patch('agenda.services.candidatos_api_service.http_client.post')
 def test_buscar_por_uuids_non_dict_response_returns_empty_list(mock_http_client_post: Any) -> None:
-    """Verifica buscar por uuids non dict response returns empty list."""
+    """Verifica buscar por uuids non dict response returns empty list.
+    
+    Args:
+        mock_http_client_post: Parâmetro mock http client post da operação.
+    
+    Returns:
+        Não retorna valor.
+    
+    Raises:
+        Nenhuma exceção específica documentada.
+    """
     mock_http_client_post.return_value.raise_for_status = MagicMock()
     mock_http_client_post.return_value.json.return_value = 'not a dict'
     svc = CandidatosApiService(base_url='http://x.com')
@@ -117,7 +226,17 @@ def test_buscar_por_uuids_non_dict_response_returns_empty_list(mock_http_client_
 
 @patch('agenda.services.candidatos_api_service.http_client.post')
 def test_buscar_por_uuids_results_not_list_returns_empty_list(mock_http_client_post: Any) -> None:
-    """Verifica buscar por uuids results not list returns empty list."""
+    """Verifica buscar por uuids results not list returns empty list.
+    
+    Args:
+        mock_http_client_post: Parâmetro mock http client post da operação.
+    
+    Returns:
+        Não retorna valor.
+    
+    Raises:
+        Nenhuma exceção específica documentada.
+    """
     mock_http_client_post.return_value.raise_for_status = MagicMock()
     mock_http_client_post.return_value.json.return_value = {'results': 'not a list'}
     svc = CandidatosApiService(base_url='http://x.com')
@@ -126,7 +245,17 @@ def test_buscar_por_uuids_results_not_list_returns_empty_list(mock_http_client_p
 
 @patch('agenda.services.candidatos_api_service.http_client.post')
 def test_buscar_por_uuids_sorts_by_ranking_escolha_asc(mock_post: Any) -> None:
-    """Verifica buscar por uuids sorts by ranking escolha asc."""
+    """Verifica buscar por uuids sorts by ranking escolha asc.
+    
+    Args:
+        mock_post: Parâmetro mock post da operação.
+    
+    Returns:
+        Não retorna valor.
+    
+    Raises:
+        Nenhuma exceção específica documentada.
+    """
     mock_post.return_value.raise_for_status = MagicMock()
     mock_post.return_value.json.return_value = {'results': [{'uuid': 'c', 'ranking_escolha': 3}, {'uuid': 'a', 'ranking_escolha': 1}, {'uuid': 'b', 'ranking_escolha': 2}]}
     svc = CandidatosApiService(base_url='http://x.com')
@@ -136,7 +265,17 @@ def test_buscar_por_uuids_sorts_by_ranking_escolha_asc(mock_post: Any) -> None:
 
 @patch('agenda.services.candidatos_api_service.http_client.post')
 def test_buscar_por_uuids_none_ranking_goes_last(mock_http_client_post: Any) -> None:
-    """Verifica buscar por uuids none ranking goes last."""
+    """Verifica buscar por uuids none ranking goes last.
+    
+    Args:
+        mock_http_client_post: Parâmetro mock http client post da operação.
+    
+    Returns:
+        Não retorna valor.
+    
+    Raises:
+        Nenhuma exceção específica documentada.
+    """
     mock_http_client_post.return_value.raise_for_status = MagicMock()
     mock_http_client_post.return_value.json.return_value = {'results': [{'uuid': 'a', 'ranking_escolha': None}, {'uuid': 'b', 'ranking_escolha': 1}]}
     svc = CandidatosApiService(base_url='http://x.com')
@@ -146,7 +285,17 @@ def test_buscar_por_uuids_none_ranking_goes_last(mock_http_client_post: Any) -> 
 
 @patch('agenda.services.candidatos_api_service.http_client.post')
 def test_buscar_por_uuids_invalid_ranking_goes_last(mock_http_client_post: Any) -> None:
-    """Verifica buscar por uuids invalid ranking goes last."""
+    """Verifica buscar por uuids invalid ranking goes last.
+    
+    Args:
+        mock_http_client_post: Parâmetro mock http client post da operação.
+    
+    Returns:
+        Não retorna valor.
+    
+    Raises:
+        Nenhuma exceção específica documentada.
+    """
     mock_http_client_post.return_value.raise_for_status = MagicMock()
     mock_http_client_post.return_value.json.return_value = {'results': [{'uuid': 'a', 'ranking_escolha': 'não é número'}, {'uuid': 'b', 'ranking_escolha': 1}]}
     svc = CandidatosApiService(base_url='http://x.com')
@@ -156,7 +305,17 @@ def test_buscar_por_uuids_invalid_ranking_goes_last(mock_http_client_post: Any) 
 
 @patch('agenda.services.candidatos_api_service.http_client.post')
 def test_buscar_por_uuids_raise_for_status_called(mock_http_client_post: Any) -> None:
-    """Verifica buscar por uuids raise for status called."""
+    """Verifica buscar por uuids raise for status called.
+    
+    Args:
+        mock_http_client_post: Parâmetro mock http client post da operação.
+    
+    Returns:
+        Não retorna valor.
+    
+    Raises:
+        Nenhuma exceção específica documentada.
+    """
     mock_http_client_post.return_value.json.return_value = {'results': []}
     mock_http_client_post.return_value.raise_for_status = MagicMock()
     svc = CandidatosApiService(base_url='http://x.com')
@@ -165,7 +324,17 @@ def test_buscar_por_uuids_raise_for_status_called(mock_http_client_post: Any) ->
 
 @patch('agenda.services.candidatos_api_service.http_client.post')
 def test_buscar_por_uuids_raises_on_http_error(mock_http_client_post: Any) -> None:
-    """Verifica buscar por uuids raises on http error."""
+    """Verifica buscar por uuids raises on http error.
+    
+    Args:
+        mock_http_client_post: Parâmetro mock http client post da operação.
+    
+    Returns:
+        Não retorna valor.
+    
+    Raises:
+        Nenhuma exceção específica documentada.
+    """
     mock_http_client_post.return_value.raise_for_status.side_effect = requests.HTTPError('404')
     svc = CandidatosApiService(base_url='http://x.com')
     with pytest.raises(requests.RequestException):
@@ -173,7 +342,17 @@ def test_buscar_por_uuids_raises_on_http_error(mock_http_client_post: Any) -> No
 
 @patch('agenda.services.candidatos_api_service.requests.post')
 def test_buscar_por_uuids_raises_on_connection_error(mock_http_client_post: Any) -> None:
-    """Verifica buscar por uuids raises on connection error."""
+    """Verifica buscar por uuids raises on connection error.
+    
+    Args:
+        mock_http_client_post: Parâmetro mock http client post da operação.
+    
+    Returns:
+        Não retorna valor.
+    
+    Raises:
+        Nenhuma exceção específica documentada.
+    """
     mock_http_client_post.side_effect = requests.RequestException('Connection refused')
     svc = CandidatosApiService(base_url='http://x.com')
     with pytest.raises(requests.RequestException):

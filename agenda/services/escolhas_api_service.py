@@ -9,7 +9,16 @@ class EscolhasApiService:
     """Serviço para chamar o endpoint de escolhas."""
 
     def __init__(self, base_url: str, timeout_seconds: int=30) -> None:
-        """Executa   init  ."""
+        """Executa   init  .
+        
+        Args:
+            self: Instância do objeto.
+            base_url: Parâmetro base url da operação.
+            timeout_seconds: Parâmetro timeout seconds da operação.
+        
+        Raises:
+            Nenhuma exceção específica documentada.
+        """
         self.base_url = base_url.rstrip('/')
         self.timeout_seconds = timeout_seconds
         self._headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
@@ -17,17 +26,15 @@ class EscolhasApiService:
     def buscar_escolhas_por_processo_uuid(self, vaga_escola__lote__processo_uuid: str) -> dict[str, Any]:
         """GET para /api/v1/escolhas/?vaga_escola__lote__processo_uuid=<uuid>.
         
-        Retorna a resposta da API de escolhas filtrada por processo.
-        
         Args:
-                vaga_escola__lote__processo_uuid: Parâmetro da operação.
-            processo_uuid: UUID do processo de convocação.
+            self: Instância do objeto.
+            vaga_escola__lote__processo_uuid: Parâmetro da operação.
         
         Returns:
-            Dicionário com a resposta da API (results, count, etc.).
+            Dicionário com os dados processados.
         
         Raises:
-            Exception: Em caso de erro na requisição.
+            Nenhuma exceção específica documentada.
         """
         url = f'{self.base_url}/api/v1/escolhas/'
         params = {'vaga_escola__lote__processo_uuid': str(vaga_escola__lote__processo_uuid), 'no_page': True, 'fields': 'candidato_uuid'}
