@@ -1,11 +1,12 @@
+"""Módulo serializers."""
 from rest_framework import serializers
 
 from agenda.models import Agenda
 
 
 class AgendaItemCreateSerializer(serializers.Serializer):
-    """
-    Serializer para cada item da lista 'agendas' no payload de criação.
+    """Serializer para cada item da lista 'agendas' no payload de criação.
+
     processo_convocacao_uuid e processo_convocacao_nome vêm do root
     (processo_uuid, processo_nome).
     """
@@ -40,8 +41,8 @@ class AgendaItemCreateSerializer(serializers.Serializer):
 
 
 class CreateAgendasPayloadSerializer(serializers.Serializer):
-    """
-    Valida o payload do create: agendas, candidatos_uuids,
+    """Valida o payload do create: agendas, candidatos_uuids,.
+
     processo_uuid, processo_nome.
     """
 
@@ -79,6 +80,7 @@ class AgendaListSerializer(serializers.ModelSerializer):
     """Serializer para listagem de agendas (list e retrieve)."""
 
     class Meta:
+        """Define Meta."""
         model = Agenda
         fields = [
             "uuid",
@@ -107,6 +109,7 @@ class AgendaCreateSerializer(serializers.ModelSerializer):
     """Serializer para criação e atualização de agendas."""
 
     class Meta:
+        """Define Meta."""
         model = Agenda
         fields = [
             "uuid",
