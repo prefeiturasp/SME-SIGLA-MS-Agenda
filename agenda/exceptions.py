@@ -9,15 +9,12 @@ class AgendaOnlineJaExisteException(Exception):
     """Indica que uma agenda online já existe para o processo e cargo."""
 
     def __init__(self, processo_nome: Any, cargo_nome: Any) -> None:
-        """Executa   init  .
+        """Inicializa a instância com os parâmetros informados.
 
         Args:
             self: Instância do objeto.
-            processo_nome: Parâmetro processo nome.
-            cargo_nome: Parâmetro cargo nome.
-
-        Raises:
-            Nenhuma exceção específica documentada.
+            processo_nome: Processo nome utilizado na operação.
+            cargo_nome: Cargo nome utilizado na operação.
         """
         self.processo_nome = processo_nome
         self.cargo_nome = cargo_nome

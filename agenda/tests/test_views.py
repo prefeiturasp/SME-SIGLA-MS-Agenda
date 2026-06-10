@@ -22,13 +22,13 @@ pytestmark = pytest.mark.django_db
 
 @pytest.fixture
 def client() -> Any:
-    """Executa client."""
+    """Client."""
     return APIClient()
 
 
 @pytest.fixture
 def agenda() -> Any:
-    """Executa agenda."""
+    """Agenda."""
     return Agenda.objects.create(
         processo_convocacao_uuid=uuid.uuid4(),
         processo_convocacao_nome="Processo Lista",
@@ -41,7 +41,7 @@ def agenda() -> Any:
 
 @pytest.fixture
 def agendas() -> Any:
-    """Executa agendas."""
+    """Agendas."""
     itens = []
     for i in range(2):
         itens.append(
@@ -74,7 +74,7 @@ def test_agenda_list(client: Any, agenda: Any) -> None:
 def test_list_agenda_online_retorna_candidatos_uuids_restantes(
     mock_escolhas_class: Any, client: Any
 ) -> None:
-    """Agenda ONLINE chama escolhas e retorna candidatos_uuids_restantes."""
+    """Verifica list agenda online retorna candidatos uuids restantes."""
     cand_1 = str(uuid.uuid4())
     cand_2 = str(uuid.uuid4())
     cand_3 = str(uuid.uuid4())
@@ -100,7 +100,7 @@ def test_list_agenda_online_retorna_candidatos_uuids_restantes(
 def test_list_agenda_online_restantes_vazio_quando_todos_escolhidos(
     mock_escolhas_class: Any, client: Any
 ) -> None:
-    """candidatos_uuids_restantes vazio quando todos já estão em escolhas."""
+    """Verifica list agenda online restantes vazio quando todos escolhidos."""
     cand_1 = str(uuid.uuid4())
     cand_2 = str(uuid.uuid4())
     Agenda.objects.create(
@@ -125,7 +125,7 @@ def test_list_agenda_online_restantes_vazio_quando_todos_escolhidos(
 def test_list_agenda_online_aceita_escolhas_com_results(
     mock_escolhas_class: Any, client: Any
 ) -> None:
-    """Aceita resposta da API com chave 'results' (formato paginado)."""
+    """Verifica list agenda online aceita escolhas com results."""
     cand_1 = str(uuid.uuid4())
     Agenda.objects.create(
         processo_convocacao_uuid=uuid.uuid4(),
@@ -148,7 +148,7 @@ def test_list_agenda_online_aceita_escolhas_com_results(
 def test_list_agenda_presencial_nao_adiciona_candidatos_uuids_restantes(
     client: Any,
 ) -> None:
-    """Agenda PRESENCIAL não chama escolhas nem adiciona restantes."""
+    """Verifica list agenda presencial nao adiciona candidatos uuids restantes."""
     Agenda.objects.create(
         processo_convocacao_uuid=uuid.uuid4(),
         processo_convocacao_nome="Processo Presencial",
@@ -163,7 +163,7 @@ def test_list_agenda_presencial_nao_adiciona_candidatos_uuids_restantes(
 
 
 def test_list_lista_vazia_nao_quebra(client: Any) -> None:
-    """Lista vazia retorna 200 sem candidatos_uuids_restantes."""
+    """Verifica list lista vazia nao quebra."""
     response = client.get(reverse("agendas-list"))
     assert response.status_code == status.HTTP_200_OK
     assert response.data.get("results") == []
@@ -174,7 +174,7 @@ def test_list_lista_vazia_nao_quebra(client: Any) -> None:
 def test_list_agenda_online_request_exception_retorna_200_sem_restantes(
     mock_escolhas_class: Any, client: Any
 ) -> None:
-    """RequestException em escolhas retorna 200 sem restantes."""
+    """Verifica list agenda online request exception retorna 200 sem restantes."""
     Agenda.objects.create(
         processo_convocacao_uuid=uuid.uuid4(),
         processo_convocacao_nome="Processo Online",
@@ -194,7 +194,7 @@ def test_list_agenda_online_request_exception_retorna_200_sem_restantes(
 
 @patch("agenda.views.agenda.CandidatosApiService")
 def test_agenda_create(mock_service_class: Any, client: Any) -> None:
-    """Create aceita payload com agendas, candidatos_uuids, processo."""
+    """Verifica agenda create."""
     cand_uuid_1 = uuid.uuid4()
     cand_uuid_2 = uuid.uuid4()
     processo_uuid = uuid.uuid4()
@@ -234,7 +234,7 @@ def test_agenda_create(mock_service_class: Any, client: Any) -> None:
 def test_agenda_create_request_exception_api_candidatos_retorna_502(
     mock_service_class: Any, client: Any
 ) -> None:
-    """Quando API de candidatos lança RequestException, retorna 502."""
+    """Verifica agenda create request exception api candidatos retorna 502."""
     cand_uuid = uuid.uuid4()
     processo_uuid = uuid.uuid4()
     cargo_uuid = uuid.uuid4()
@@ -269,7 +269,7 @@ def test_agenda_create_request_exception_api_candidatos_retorna_502(
 def test_agenda_create_com_uuid_existente_atualiza(
     mock_service_class: Any, client: Any
 ) -> None:
-    """Quando uuid existe, atualiza (agendas_atualizadas)."""
+    """Verifica agenda create com uuid existente atualiza."""
     mock_service = mock_service_class.return_value
     mock_method = mock_service.buscar_por_uuids_ordenado_por_ranking_escolha
     mock_method.return_value = []
@@ -309,7 +309,7 @@ def test_agenda_create_com_uuid_existente_atualiza(
 def test_agenda_create_com_uuid_inexistente_cria_nova(
     mock_service_class: Any, client: Any
 ) -> None:
-    """Quando uuid não existe (DoesNotExist), cria nova."""
+    """Verifica agenda create com uuid inexistente cria nova."""
     mock_service = mock_service_class.return_value
     mock_method = mock_service.buscar_por_uuids_ordenado_por_ranking_escolha
     mock_method.return_value = []

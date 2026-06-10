@@ -42,23 +42,20 @@ class AgendaViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
 
     def get_serializer_class(self) -> Any:
-        """Retorna o serializer apropriado baseado na ação.
+        """Retorna serializer class.
 
         Args:
             self: Instância do objeto.
 
         Returns:
             Valor calculado para o campo ou propriedade.
-
-        Raises:
-            Nenhuma exceção específica documentada.
         """
         if self.action in ["list", "retrieve"]:
             return AgendaListSerializer
         return AgendaCreateSerializer
 
     def list(self, request: Any, *args: Any, **kwargs: Any) -> Any:
-        """Executa list.
+        """List.
 
         Args:
             self: Instância do objeto.
@@ -68,9 +65,6 @@ class AgendaViewSet(viewsets.ModelViewSet):
 
         Returns:
             Resposta HTTP com os dados serializados.
-
-        Raises:
-            Nenhuma exceção específica documentada.
         """
         logger.info(
             "Listando agendas",
@@ -130,7 +124,7 @@ class AgendaViewSet(viewsets.ModelViewSet):
         return response
 
     def create(self, request: Any, *args: Any, **kwargs: Any) -> Any:
-        """Cria ou atualiza várias agendas a partir do payload com estrutura:.
+        """Cria ou atualiza várias agendas a partir do payload.
 
         Args:
             self: Instância do objeto.
@@ -140,9 +134,6 @@ class AgendaViewSet(viewsets.ModelViewSet):
 
         Returns:
             Resposta HTTP com os dados serializados.
-
-        Raises:
-            Nenhuma exceção específica documentada.
         """
         logger.info(
             "Criando agendas",
@@ -254,10 +245,7 @@ class AgendaViewSet(viewsets.ModelViewSet):
             request: Requisição HTTP recebida.
 
         Returns:
-            Resultado da operação.
-
-        Raises:
-            Nenhuma exceção específica documentada.
+            Valor calculado conforme a regra aplicada.
         """
         processo_uuid = request.query_params.get("processo_uuid")
         if not processo_uuid:

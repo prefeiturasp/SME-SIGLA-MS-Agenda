@@ -16,15 +16,12 @@ class CandidatosApiService:
     """Serviço para chamar o endpoint de candidatos buscar-por-uuids."""
 
     def __init__(self, base_url: str, timeout_seconds: int = 30) -> None:
-        """Executa   init  .
+        """Inicializa a instância com os parâmetros informados.
 
         Args:
             self: Instância do objeto.
-            base_url: Parâmetro base url da operação.
-            timeout_seconds: Parâmetro timeout seconds da operação.
-
-        Raises:
-            Nenhuma exceção específica documentada.
+            base_url: URL base do serviço remoto.
+            timeout_seconds: Tempo máximo de espera pela resposta, em segundos.
         """
         self.base_url = base_url.rstrip("/")
         self.timeout_seconds = timeout_seconds
@@ -36,18 +33,15 @@ class CandidatosApiService:
     def buscar_por_uuids_ordenado_por_ranking_escolha(
         self, uuids: list[str], fields: str = "uuid,ranking_escolha"
     ) -> list[dict[str, Any]]:
-        """POST para /api/v1/habilitados/buscar-por-uuids/ com.
+        """Busca por uuids ordenado por ranking escolha.
 
         Args:
             self: Instância do objeto.
-            uuids: Lista de UUIDs dos candidatos.
-            fields: Query string de campos (padrão: uuid,ranking_escolha).
+            uuids: Uuids utilizado na operação.
+            fields: Fields utilizado na operação.
 
         Returns:
-            Lista com os registros resultantes.
-
-        Raises:
-            Nenhuma exceção específica documentada.
+            Lista com os registros obtidos.
         """
         if not uuids:
             return []
@@ -91,16 +85,13 @@ class CandidatosApiService:
             results = []
 
         def _key(item: Any) -> Any:
-            """Executa  key.
+            """Key.
 
             Args:
-                item: Parâmetro item da operação.
+                item: Item utilizado na operação.
 
             Returns:
-                Resultado da operação.
-
-            Raises:
-                Nenhuma exceção específica documentada.
+                Valor calculado conforme a regra aplicada.
             """
             r = item.get("ranking_escolha")
             if r is None:

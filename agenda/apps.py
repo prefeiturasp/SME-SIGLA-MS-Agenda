@@ -4,7 +4,7 @@ from django.apps import AppConfig
 
 
 class AgendaConfig(AppConfig):
-    """Define AgendaConfig."""
+    """Representa AgendaConfig."""
 
     default_auto_field = "django.db.models.BigAutoField"
     name = "agenda"

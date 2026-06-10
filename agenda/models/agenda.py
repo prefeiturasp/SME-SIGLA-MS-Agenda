@@ -67,7 +67,7 @@ class Agenda(BaseModel):
     )
 
     class Meta:
-        """Define Meta."""
+        """Representa Meta."""
 
         verbose_name = "Agenda de Convocação"
         verbose_name_plural = "Agendas de Convocação"
@@ -75,16 +75,13 @@ class Agenda(BaseModel):
         db_table = "agenda"
 
     def __str__(self) -> Any:
-        """Executa   str  .
+        """Retorna representação textual do registro.
 
         Args:
             self: Instância do objeto.
 
         Returns:
-            Resultado da operação.
-
-        Raises:
-            Nenhuma exceção específica documentada.
+            Valor calculado conforme a regra aplicada.
         """
         return f"{self.processo_convocacao_nome} - {self.cargo_nome}"
 

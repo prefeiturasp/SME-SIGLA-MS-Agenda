@@ -14,15 +14,12 @@ class EscolhasApiService:
     """Serviço para chamar o endpoint de escolhas."""
 
     def __init__(self, base_url: str, timeout_seconds: int = 30) -> None:
-        """Executa   init  .
+        """Inicializa a instância com os parâmetros informados.
 
         Args:
             self: Instância do objeto.
-            base_url: Parâmetro base url.
-            timeout_seconds: Parâmetro timeout seconds.
-
-        Raises:
-            Nenhuma exceção específica documentada.
+            base_url: URL base do serviço remoto.
+            timeout_seconds: Tempo máximo de espera pela resposta, em segundos.
         """
         self.base_url = base_url.rstrip("/")
         self.timeout_seconds = timeout_seconds
@@ -34,17 +31,14 @@ class EscolhasApiService:
     def buscar_escolhas_por_processo_uuid(
         self, vaga_escola__lote__processo_uuid: str
     ) -> dict[str, Any]:
-        """GET para /api/v1/escolhas/?vaga_escola__lote__processo_uuid=<uuid>.
+        """Busca escolhas por processo uuid.
 
         Args:
             self: Instância do objeto.
-            vaga_escola__lote__processo_uuid: Parâmetro da operação.
+            vaga_escola__lote__processo_uuid: UUID do processo na vaga.
 
         Returns:
-            Dicionário com os dados processados.
-
-        Raises:
-            Nenhuma exceção específica documentada.
+            Dicionário com os dados retornados pela operação.
         """
         url = f"{self.base_url}/api/v1/escolhas/"
         params = {

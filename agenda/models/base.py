@@ -19,7 +19,7 @@ class BaseModel(models.Model):
     )
 
     class Meta:
-        """Define Meta."""
+        """Representa Meta."""
 
         abstract = True
         ordering = ["-criado_em"]

@@ -38,7 +38,7 @@ class AgendaItemCreateSerializer(serializers.Serializer):
 
 
 class CreateAgendasPayloadSerializer(serializers.Serializer):
-    """Valida o payload do create: agendas, candidatos_uuids,."""
+    """Valida payload de criação em lote de agendas e candidatos."""
 
     agendas = serializers.ListField(
         child=AgendaItemCreateSerializer(),
@@ -74,7 +74,7 @@ class AgendaListSerializer(serializers.ModelSerializer):
     """Serializer para listagem de agendas (list e retrieve)."""
 
     class Meta:
-        """Define Meta."""
+        """Representa Meta."""
 
         model = Agenda
         fields = [
@@ -104,7 +104,7 @@ class AgendaCreateSerializer(serializers.ModelSerializer):
     """Serializer para criação e atualização de agendas."""
 
     class Meta:
-        """Define Meta."""
+        """Representa Meta."""
 
         model = Agenda
         fields = [
