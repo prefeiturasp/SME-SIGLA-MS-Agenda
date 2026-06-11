@@ -17,9 +17,8 @@ class EscolhasApiService:
         """Inicializa a instância com os parâmetros informados.
 
         Args:
-            self: Instância do objeto.
             base_url: URL base do serviço remoto.
-            timeout_seconds: Tempo máximo de espera pela resposta, em segundos.
+            timeout_seconds: Tempo máximo de espera, em segundos.
         """
         self.base_url = base_url.rstrip("/")
         self.timeout_seconds = timeout_seconds
@@ -34,11 +33,10 @@ class EscolhasApiService:
         """Busca escolhas por processo uuid.
 
         Args:
-            self: Instância do objeto.
             vaga_escola__lote__processo_uuid: UUID do processo na vaga.
 
         Returns:
-            Dicionário com os dados retornados pela operação.
+            Dicionário com os dados processados.
         """
         url = f"{self.base_url}/api/v1/escolhas/"
         params = {

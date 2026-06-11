@@ -19,9 +19,8 @@ class CandidatosApiService:
         """Inicializa a instância com os parâmetros informados.
 
         Args:
-            self: Instância do objeto.
             base_url: URL base do serviço remoto.
-            timeout_seconds: Tempo máximo de espera pela resposta, em segundos.
+            timeout_seconds: Tempo máximo de espera, em segundos.
         """
         self.base_url = base_url.rstrip("/")
         self.timeout_seconds = timeout_seconds
@@ -36,9 +35,8 @@ class CandidatosApiService:
         """Busca por uuids ordenado por ranking escolha.
 
         Args:
-            self: Instância do objeto.
-            uuids: Uuids utilizado na operação.
-            fields: Fields utilizado na operação.
+            uuids: Uuids.
+            fields: Fields.
 
         Returns:
             Lista com os registros obtidos.
@@ -85,14 +83,7 @@ class CandidatosApiService:
             results = []
 
         def _key(item: Any) -> Any:
-            """Key.
-
-            Args:
-                item: Item utilizado na operação.
-
-            Returns:
-                Valor calculado conforme a regra aplicada.
-            """
+            """Key."""
             r = item.get("ranking_escolha")
             if r is None:
                 return float("inf")

@@ -12,17 +12,7 @@ class AgendaOrderingFilter(OrderingFilter):
     """OrderingFilter que coloca agendas com modalidade ONLINE sempre."""
 
     def filter_queryset(self, request: Any, queryset: Any, view: Any) -> Any:
-        """Filter queryset.
-
-        Args:
-            self: Instância do objeto.
-            request: Requisição HTTP recebida.
-            queryset: Queryset utilizado na operação.
-            view: View utilizado na operação.
-
-        Returns:
-            Valor calculado conforme a regra aplicada.
-        """
+        """Ordena o queryset priorizando agendas com modalidade ONLINE."""
         ordering = self.get_ordering(request, queryset, view)
         queryset = queryset.annotate(
             _online_first=Case(

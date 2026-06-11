@@ -75,14 +75,7 @@ class Agenda(BaseModel):
         db_table = "agenda"
 
     def __str__(self) -> Any:
-        """Retorna representação textual do registro.
-
-        Args:
-            self: Instância do objeto.
-
-        Returns:
-            Valor calculado conforme a regra aplicada.
-        """
+        """Retorna representação textual do registro."""
         return f"{self.processo_convocacao_nome} - {self.cargo_nome}"
 
 

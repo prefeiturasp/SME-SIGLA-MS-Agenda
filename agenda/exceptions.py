@@ -12,9 +12,8 @@ class AgendaOnlineJaExisteException(Exception):
         """Inicializa a instância com os parâmetros informados.
 
         Args:
-            self: Instância do objeto.
-            processo_nome: Processo nome utilizado na operação.
-            cargo_nome: Cargo nome utilizado na operação.
+            processo_nome: Nome do processo exibido na resposta.
+            cargo_nome: Cargo nome.
         """
         self.processo_nome = processo_nome
         self.cargo_nome = cargo_nome

@@ -44,11 +44,8 @@ class AgendaViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self) -> Any:
         """Retorna serializer class.
 
-        Args:
-            self: Instância do objeto.
-
         Returns:
-            Valor calculado para o campo ou propriedade.
+            Resposta HTTP com os dados solicitados.
         """
         if self.action in ["list", "retrieve"]:
             return AgendaListSerializer
@@ -58,10 +55,9 @@ class AgendaViewSet(viewsets.ModelViewSet):
         """List.
 
         Args:
-            self: Instância do objeto.
             request: Requisição HTTP recebida.
-            *args: Argumentos posicionais variáveis.
-            **kwargs: Argumentos nomeados variáveis.
+            *args: Argumentos posicionais repassados ao comando.
+            **kwargs: Argumentos nomeados repassados ao comando.
 
         Returns:
             Resposta HTTP com os dados serializados.
@@ -127,10 +123,9 @@ class AgendaViewSet(viewsets.ModelViewSet):
         """Cria ou atualiza várias agendas a partir do payload.
 
         Args:
-            self: Instância do objeto.
             request: Requisição HTTP recebida.
-            *args: Argumentos posicionais variáveis.
-            **kwargs: Argumentos nomeados variáveis.
+            *args: Argumentos posicionais repassados ao comando.
+            **kwargs: Argumentos nomeados repassados ao comando.
 
         Returns:
             Resposta HTTP com os dados serializados.
@@ -241,11 +236,10 @@ class AgendaViewSet(viewsets.ModelViewSet):
         """Remove todas as agendas vinculadas ao processo de convocação.
 
         Args:
-            self: Instância do objeto.
             request: Requisição HTTP recebida.
 
         Returns:
-            Valor calculado conforme a regra aplicada.
+            Resposta HTTP com os dados solicitados.
         """
         processo_uuid = request.query_params.get("processo_uuid")
         if not processo_uuid:

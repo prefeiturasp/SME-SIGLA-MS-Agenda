@@ -22,11 +22,10 @@ class CustomPagination(PageNumberPagination):
         """Retorna paginated response.
 
         Args:
-            self: Instância do objeto.
-            data: Dados de entrada.
+            data: Data.
 
         Returns:
-            Valor calculado para o campo ou propriedade.
+            Valor do campo serializado.
         """
         return Response(
             {
