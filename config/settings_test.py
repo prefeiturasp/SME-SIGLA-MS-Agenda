@@ -2,6 +2,11 @@ import os
 
 from .settings import *
 
+# Middlewares do sigla_sdk podem não estar disponíveis no ambiente de testes.
+MIDDLEWARE = [
+    mw for mw in MIDDLEWARE if not mw.startswith("sigla_sdk.")
+]
+
 # PostgreSQL somente para testes (banco isolado)
 DATABASES = {
     "default": {

@@ -59,7 +59,7 @@ def test_buscar_por_uuids_empty_list_does_not_call_requests():
     """Verifica buscar por uuids empty list does not call requests."""
     svc = CandidatosApiService(base_url="http://x.com")
     with patch(
-        "agenda.services.candidatos_api_service.requests.post"
+        "agenda.services.candidatos_api_service.http_client.post"
     ) as mock_post:
         svc.buscar_por_uuids_ordenado_por_ranking_escolha(uuids=[])
         mock_post.assert_not_called()
@@ -254,7 +254,7 @@ def test_buscar_por_uuids_raises_on_http_error(mock_http_client_post):
         svc.buscar_por_uuids_ordenado_por_ranking_escolha(uuids=["a"])
 
 
-@patch("agenda.services.candidatos_api_service.requests.post")
+@patch("agenda.services.candidatos_api_service.http_client.post")
 def test_buscar_por_uuids_raises_on_connection_error(mock_http_client_post):
     """Verifica buscar por uuids raises on connection error."""
     mock_http_client_post.side_effect = requests.RequestException(
