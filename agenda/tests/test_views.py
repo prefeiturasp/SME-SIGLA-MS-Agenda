@@ -1,6 +1,6 @@
-"""
-Testes unitários para as views do app agenda usando pytest.
-"""
+"""Testes unitários para as views do app agenda usando pytest."""
+
+from __future__ import annotations
 
 import uuid
 from datetime import timedelta
@@ -21,11 +21,13 @@ pytestmark = pytest.mark.django_db
 
 @pytest.fixture
 def client():
+    """Client."""
     return APIClient()
 
 
 @pytest.fixture
 def agenda():
+    """Agenda."""
     return Agenda.objects.create(
         processo_convocacao_uuid=uuid.uuid4(),
         processo_convocacao_nome="Processo Lista",
@@ -38,14 +40,15 @@ def agenda():
 
 @pytest.fixture
 def agendas():
+    """Agendas."""
     itens = []
     for i in range(2):
         itens.append(
             Agenda.objects.create(
                 processo_convocacao_uuid=uuid.uuid4(),
-                processo_convocacao_nome=f"Processo {i+1}",
+                processo_convocacao_nome=f"Processo {i + 1}",
                 cargo_uuid=uuid.uuid4(),
-                cargo_nome=f"Cargo {i+1}",
+                cargo_nome=f"Cargo {i + 1}",
                 data_escolha=timezone.now() + timedelta(days=10 + i),
                 candidatos_uuids=[uuid.uuid4(), uuid.uuid4()],
             )
@@ -53,11 +56,10 @@ def agendas():
     return itens
 
 
-# Testes para AgendaViewSet
 def test_agenda_list(client, agenda):
+    """Verifica agenda list."""
     url = reverse("agendas-list")
     response = client.get(url)
-
     assert response.status_code == status.HTTP_200_OK
     assert "results" in response.data
     assert len(response.data["results"]) == 1
@@ -67,17 +69,11 @@ def test_agenda_list(client, agenda):
     )
 
 
-# ---------------------------------------------------------------------------
-# list – primeira agenda ONLINE, escolhas e
-# candidatos_uuids_restantes (linhas 51-82)
-# ---------------------------------------------------------------------------
-
-
 @patch("agenda.views.agenda.EscolhasApiService")
 def test_list_agenda_online_retorna_candidatos_uuids_restantes(
     mock_escolhas_class, client
 ):
-    """Agenda ONLINE chama escolhas e retorna candidatos_uuids_restantes."""
+    """Verifica list agenda online retorna candidatos uuids restantes."""
     cand_1 = str(uuid.uuid4())
     cand_2 = str(uuid.uuid4())
     cand_3 = str(uuid.uuid4())
@@ -91,11 +87,9 @@ def test_list_agenda_online_retorna_candidatos_uuids_restantes(
     )
     mock_service = mock_escolhas_class.return_value
     mock_service.buscar_escolhas_por_processo_uuid.return_value = [
-        {"candidato_uuid": cand_1},
+        {"candidato_uuid": cand_1}
     ]
-
     response = client.get(reverse("agendas-list"))
-
     assert response.status_code == status.HTTP_200_OK
     assert "candidatos_uuids_restantes" in response.data
     assert set(response.data["candidatos_uuids_restantes"]) == {cand_2, cand_3}
@@ -105,7 +99,7 @@ def test_list_agenda_online_retorna_candidatos_uuids_restantes(
 def test_list_agenda_online_restantes_vazio_quando_todos_escolhidos(
     mock_escolhas_class, client
 ):
-    """candidatos_uuids_restantes vazio quando todos já estão em escolhas."""
+    """Verifica list agenda online restantes vazio quando todos escolhidos."""
     cand_1 = str(uuid.uuid4())
     cand_2 = str(uuid.uuid4())
     Agenda.objects.create(
@@ -121,9 +115,7 @@ def test_list_agenda_online_restantes_vazio_quando_todos_escolhidos(
         {"candidato_uuid": cand_1},
         {"candidato_uuid": cand_2},
     ]
-
     response = client.get(reverse("agendas-list"))
-
     assert response.status_code == status.HTTP_200_OK
     assert response.data["candidatos_uuids_restantes"] == []
 
@@ -132,7 +124,7 @@ def test_list_agenda_online_restantes_vazio_quando_todos_escolhidos(
 def test_list_agenda_online_aceita_escolhas_com_results(
     mock_escolhas_class, client
 ):
-    """Aceita resposta da API com chave 'results' (formato paginado)."""
+    """Verifica list agenda online aceita escolhas com results."""
     cand_1 = str(uuid.uuid4())
     Agenda.objects.create(
         processo_convocacao_uuid=uuid.uuid4(),
@@ -147,9 +139,7 @@ def test_list_agenda_online_aceita_escolhas_com_results(
         "results": [{"candidato_uuid": cand_1}],
         "count": 1,
     }
-
     response = client.get(reverse("agendas-list"))
-
     assert response.status_code == status.HTTP_200_OK
     assert response.data["candidatos_uuids_restantes"] == []
 
@@ -157,7 +147,7 @@ def test_list_agenda_online_aceita_escolhas_com_results(
 def test_list_agenda_presencial_nao_adiciona_candidatos_uuids_restantes(
     client,
 ):
-    """Agenda PRESENCIAL não chama escolhas nem adiciona restantes."""
+    """Verifica list agenda presencial nao adiciona candidatos uuids restantes."""
     Agenda.objects.create(
         processo_convocacao_uuid=uuid.uuid4(),
         processo_convocacao_nome="Processo Presencial",
@@ -166,17 +156,14 @@ def test_list_agenda_presencial_nao_adiciona_candidatos_uuids_restantes(
         modalidade="PRESENCIAL",
         candidatos_uuids=[str(uuid.uuid4())],
     )
-
     response = client.get(reverse("agendas-list"))
-
     assert response.status_code == status.HTTP_200_OK
     assert "candidatos_uuids_restantes" not in response.data
 
 
 def test_list_lista_vazia_nao_quebra(client):
-    """Lista vazia retorna 200 sem candidatos_uuids_restantes."""
+    """Verifica list lista vazia nao quebra."""
     response = client.get(reverse("agendas-list"))
-
     assert response.status_code == status.HTTP_200_OK
     assert response.data.get("results") == []
     assert "candidatos_uuids_restantes" not in response.data
@@ -186,7 +173,7 @@ def test_list_lista_vazia_nao_quebra(client):
 def test_list_agenda_online_request_exception_retorna_200_sem_restantes(
     mock_escolhas_class, client
 ):
-    """RequestException em escolhas retorna 200 sem restantes."""
+    """Verifica list agenda online request exception retorna 200 sem restantes."""
     Agenda.objects.create(
         processo_convocacao_uuid=uuid.uuid4(),
         processo_convocacao_nome="Processo Online",
@@ -199,27 +186,23 @@ def test_list_agenda_online_request_exception_retorna_200_sem_restantes(
     mock_service.buscar_escolhas_por_processo_uuid.side_effect = (
         RequestException("timeout")
     )
-
     response = client.get(reverse("agendas-list"))
-
     assert response.status_code == status.HTTP_200_OK
     assert "candidatos_uuids_restantes" not in response.data
 
 
 @patch("agenda.views.agenda.CandidatosApiService")
 def test_agenda_create(mock_service_class, client):
-    """Create aceita payload com agendas, candidatos_uuids, processo."""
+    """Verifica agenda create."""
     cand_uuid_1 = uuid.uuid4()
     cand_uuid_2 = uuid.uuid4()
     processo_uuid = uuid.uuid4()
     cargo_uuid = uuid.uuid4()
-
     mock_service = mock_service_class.return_value
     mock_service.buscar_por_uuids_ordenado_por_ranking_escolha.return_value = [
         {"uuid": cand_uuid_1, "ranking_escolha": 1},
         {"uuid": cand_uuid_2, "ranking_escolha": 2},
     ]
-
     url = reverse("agendas-list")
     data = {
         "agendas": [
@@ -237,13 +220,9 @@ def test_agenda_create(mock_service_class, client):
         "processo_uuid": str(processo_uuid),
         "processo_nome": "Processo Novo",
     }
-
     response = client.post(url, data, format="json")
-
     assert response.status_code == status.HTTP_201_CREATED
     assert Agenda.objects.count() == 1
-    # breakpoint()
-
     item = Agenda.objects.first()
     assert item.processo_convocacao_nome == "Processo Novo"
     assert item.cargo_nome == "Cargo Novo"
@@ -254,16 +233,14 @@ def test_agenda_create(mock_service_class, client):
 def test_agenda_create_request_exception_api_candidatos_retorna_502(
     mock_service_class, client
 ):
-    """Quando API de candidatos lança RequestException, retorna 502."""
+    """Verifica agenda create request exception api candidatos retorna 502."""
     cand_uuid = uuid.uuid4()
     processo_uuid = uuid.uuid4()
     cargo_uuid = uuid.uuid4()
-
     mock_service = mock_service_class.return_value
     mock_service.buscar_por_uuids_ordenado_por_ranking_escolha.side_effect = (
         RequestException("Erro de conexão")
     )
-
     url = reverse("agendas-list")
     data = {
         "agendas": [
@@ -281,9 +258,7 @@ def test_agenda_create_request_exception_api_candidatos_retorna_502(
         "processo_uuid": str(processo_uuid),
         "processo_nome": "Processo Novo",
     }
-
     response = client.post(url, data, format="json")
-
     assert response.status_code == status.HTTP_502_BAD_GATEWAY
     assert response.data["detail"] == "Erro ao consultar API de candidatos."
     assert Agenda.objects.count() == 0
@@ -291,7 +266,7 @@ def test_agenda_create_request_exception_api_candidatos_retorna_502(
 
 @patch("agenda.views.agenda.CandidatosApiService")
 def test_agenda_create_com_uuid_existente_atualiza(mock_service_class, client):
-    """Quando uuid existe, atualiza (agendas_atualizadas)."""
+    """Verifica agenda create com uuid existente atualiza."""
     mock_service = mock_service_class.return_value
     mock_method = mock_service.buscar_por_uuids_ordenado_por_ranking_escolha
     mock_method.return_value = []
@@ -304,7 +279,6 @@ def test_agenda_create_com_uuid_existente_atualiza(mock_service_class, client):
         cargo_nome="Cargo Original",
         candidatos_uuids=[],
     )
-
     url = reverse("agendas-list")
     data = {
         "agendas": [
@@ -320,9 +294,7 @@ def test_agenda_create_com_uuid_existente_atualiza(mock_service_class, client):
         "processo_uuid": str(processo_uuid),
         "processo_nome": "Processo Atualizado",
     }
-
     response = client.post(url, data, format="json")
-
     assert response.status_code == status.HTTP_200_OK
     assert Agenda.objects.count() == 1
     agenda_existente.refresh_from_db()
@@ -334,14 +306,13 @@ def test_agenda_create_com_uuid_existente_atualiza(mock_service_class, client):
 def test_agenda_create_com_uuid_inexistente_cria_nova(
     mock_service_class, client
 ):
-    """Quando uuid não existe (DoesNotExist), cria nova."""
+    """Verifica agenda create com uuid inexistente cria nova."""
     mock_service = mock_service_class.return_value
     mock_method = mock_service.buscar_por_uuids_ordenado_por_ranking_escolha
     mock_method.return_value = []
     processo_uuid = uuid.uuid4()
     cargo_uuid = uuid.uuid4()
     uuid_fake = uuid.uuid4()
-
     url = reverse("agendas-list")
     data = {
         "agendas": [
@@ -357,9 +328,7 @@ def test_agenda_create_com_uuid_inexistente_cria_nova(
         "processo_uuid": str(processo_uuid),
         "processo_nome": "Processo Novo",
     }
-
     response = client.post(url, data, format="json")
-
     assert response.status_code == status.HTTP_201_CREATED
     assert Agenda.objects.count() == 1
     item = Agenda.objects.first()
@@ -369,9 +338,9 @@ def test_agenda_create_com_uuid_inexistente_cria_nova(
 
 
 def test_agenda_retrieve(client, agenda):
+    """Verifica agenda retrieve."""
     url = reverse("agendas-detail", args=[agenda.uuid])
     response = client.get(url)
-
     assert response.status_code == status.HTTP_200_OK
     assert (
         response.data["processo_convocacao_nome"]
@@ -381,14 +350,13 @@ def test_agenda_retrieve(client, agenda):
 
 
 def test_agenda_update(client, agenda):
+    """Verifica agenda update."""
     url = reverse("agendas-detail", args=[agenda.uuid])
     data = {
         "processo_convocacao_nome": "Processo Atualizado",
         "cargo_nome": "Cargo Atualizado",
     }
-
     response = client.patch(url, data, format="json")
-
     assert response.status_code == status.HTTP_200_OK
     agenda.refresh_from_db()
     assert agenda.processo_convocacao_nome == "Processo Atualizado"
@@ -396,19 +364,15 @@ def test_agenda_update(client, agenda):
 
 
 def test_agenda_delete(client, agenda):
+    """Verifica agenda delete."""
     url = reverse("agendas-detail", args=[agenda.uuid])
     response = client.delete(url)
-
     assert response.status_code == status.HTTP_204_NO_CONTENT
     assert Agenda.objects.count() == 0
 
 
-# ---------------------------------------------------------------------------
-# DELETE /agendas/por-processo/?processo_uuid= (excluir_por_processo)
-# ---------------------------------------------------------------------------
-
-
 def test_excluir_por_processo_sem_processo_uuid_retorna_400(client):
+    """Verifica excluir por processo sem processo uuid retorna 400."""
     url = reverse("agendas-excluir-por-processo")
     response = client.delete(url)
     assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -416,11 +380,11 @@ def test_excluir_por_processo_sem_processo_uuid_retorna_400(client):
 
 
 def test_excluir_por_processo_remove_apenas_agendas_do_processo(client):
+    """Verifica excluir por processo remove apenas agendas do processo."""
     processo_a = uuid.uuid4()
     processo_b = uuid.uuid4()
     cargo_a = uuid.uuid4()
     cargo_b = uuid.uuid4()
-
     Agenda.objects.create(
         processo_convocacao_uuid=processo_a,
         processo_convocacao_nome="Processo A",
@@ -445,11 +409,9 @@ def test_excluir_por_processo_remove_apenas_agendas_do_processo(client):
         data_escolha=timezone.now(),
         candidatos_uuids=[],
     )
-
     base = reverse("agendas-excluir-por-processo")
-    url = f"{base}?{urlencode({'processo_uuid': str(processo_a)})}"
+    url = f'{base}?{urlencode({'processo_uuid': str(processo_a)})}'
     response = client.delete(url)
-
     assert response.status_code == status.HTTP_200_OK
     assert response.data["excluidas"] == 2
     assert Agenda.objects.count() == 1
@@ -457,10 +419,10 @@ def test_excluir_por_processo_remove_apenas_agendas_do_processo(client):
 
 
 def test_excluir_por_processo_sem_agendas_retorna_zero(client):
+    """Verifica excluir por processo sem agendas retorna zero."""
     processo_uuid = uuid.uuid4()
     base = reverse("agendas-excluir-por-processo")
-    url = f"{base}?{urlencode({'processo_uuid': str(processo_uuid)})}"
+    url = f'{base}?{urlencode({'processo_uuid': str(processo_uuid)})}'
     response = client.delete(url)
-
     assert response.status_code == status.HTTP_200_OK
     assert response.data["excluidas"] == 0

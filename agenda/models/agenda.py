@@ -1,3 +1,9 @@
+"""Módulo models/agenda."""
+
+from __future__ import annotations
+
+from typing import Any
+
 from auditlog.registry import auditlog
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
@@ -8,9 +14,7 @@ from .constants import MODALIDADE_CHOICES
 
 
 class Agenda(BaseModel):
-    """
-    Modelo para representar agendas de convocação.
-    """
+    """Modelo para representar agendas de convocação."""
 
     processo_convocacao_uuid = models.UUIDField(
         verbose_name="UUID do Processo de Convocação"
@@ -26,7 +30,6 @@ class Agenda(BaseModel):
     data_escolha = models.DateTimeField(
         verbose_name="Data de Publicação", default=timezone.now
     )
-
     modalidade = models.CharField(
         max_length=20,
         choices=MODALIDADE_CHOICES,
@@ -64,12 +67,15 @@ class Agenda(BaseModel):
     )
 
     class Meta:
+        """Representa Meta."""
+
         verbose_name = "Agenda de Convocação"
         verbose_name_plural = "Agendas de Convocação"
         ordering = ["escolha_em", "hora_convocacao_inicio"]
         db_table = "agenda"
 
-    def __str__(self):
+    def __str__(self) -> Any:
+        """Retorna representação textual do registro."""
         return f"{self.processo_convocacao_nome} - {self.cargo_nome}"
 
 
