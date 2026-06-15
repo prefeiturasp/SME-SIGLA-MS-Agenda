@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import uuid
 from datetime import timedelta
-from typing import Any
 from unittest.mock import patch
 from urllib.parse import urlencode
 
@@ -21,13 +20,13 @@ pytestmark = pytest.mark.django_db
 
 
 @pytest.fixture
-def client() -> Any:
+def client():
     """Client."""
     return APIClient()
 
 
 @pytest.fixture
-def agenda() -> Any:
+def agenda():
     """Agenda."""
     return Agenda.objects.create(
         processo_convocacao_uuid=uuid.uuid4(),
@@ -40,7 +39,7 @@ def agenda() -> Any:
 
 
 @pytest.fixture
-def agendas() -> Any:
+def agendas():
     """Agendas."""
     itens = []
     for i in range(2):
@@ -57,7 +56,7 @@ def agendas() -> Any:
     return itens
 
 
-def test_agenda_list(client: Any, agenda: Any) -> None:
+def test_agenda_list(client, agenda):
     """Verifica agenda list."""
     url = reverse("agendas-list")
     response = client.get(url)
@@ -72,8 +71,8 @@ def test_agenda_list(client: Any, agenda: Any) -> None:
 
 @patch("agenda.views.agenda.EscolhasApiService")
 def test_list_agenda_online_retorna_candidatos_uuids_restantes(
-    mock_escolhas_class: Any, client: Any
-) -> None:
+    mock_escolhas_class, client
+):
     """Verifica list agenda online retorna candidatos uuids restantes."""
     cand_1 = str(uuid.uuid4())
     cand_2 = str(uuid.uuid4())
@@ -98,8 +97,8 @@ def test_list_agenda_online_retorna_candidatos_uuids_restantes(
 
 @patch("agenda.views.agenda.EscolhasApiService")
 def test_list_agenda_online_restantes_vazio_quando_todos_escolhidos(
-    mock_escolhas_class: Any, client: Any
-) -> None:
+    mock_escolhas_class, client
+):
     """Verifica list agenda online restantes vazio quando todos escolhidos."""
     cand_1 = str(uuid.uuid4())
     cand_2 = str(uuid.uuid4())
@@ -123,8 +122,8 @@ def test_list_agenda_online_restantes_vazio_quando_todos_escolhidos(
 
 @patch("agenda.views.agenda.EscolhasApiService")
 def test_list_agenda_online_aceita_escolhas_com_results(
-    mock_escolhas_class: Any, client: Any
-) -> None:
+    mock_escolhas_class, client
+):
     """Verifica list agenda online aceita escolhas com results."""
     cand_1 = str(uuid.uuid4())
     Agenda.objects.create(
@@ -146,8 +145,8 @@ def test_list_agenda_online_aceita_escolhas_com_results(
 
 
 def test_list_agenda_presencial_nao_adiciona_candidatos_uuids_restantes(
-    client: Any,
-) -> None:
+    client,
+):
     """Verifica list agenda presencial nao adiciona candidatos uuids restantes."""
     Agenda.objects.create(
         processo_convocacao_uuid=uuid.uuid4(),
@@ -162,7 +161,7 @@ def test_list_agenda_presencial_nao_adiciona_candidatos_uuids_restantes(
     assert "candidatos_uuids_restantes" not in response.data
 
 
-def test_list_lista_vazia_nao_quebra(client: Any) -> None:
+def test_list_lista_vazia_nao_quebra(client):
     """Verifica list lista vazia nao quebra."""
     response = client.get(reverse("agendas-list"))
     assert response.status_code == status.HTTP_200_OK
@@ -172,8 +171,8 @@ def test_list_lista_vazia_nao_quebra(client: Any) -> None:
 
 @patch("agenda.views.agenda.EscolhasApiService")
 def test_list_agenda_online_request_exception_retorna_200_sem_restantes(
-    mock_escolhas_class: Any, client: Any
-) -> None:
+    mock_escolhas_class, client
+):
     """Verifica list agenda online request exception retorna 200 sem restantes."""
     Agenda.objects.create(
         processo_convocacao_uuid=uuid.uuid4(),
@@ -193,7 +192,7 @@ def test_list_agenda_online_request_exception_retorna_200_sem_restantes(
 
 
 @patch("agenda.views.agenda.CandidatosApiService")
-def test_agenda_create(mock_service_class: Any, client: Any) -> None:
+def test_agenda_create(mock_service_class, client):
     """Verifica agenda create."""
     cand_uuid_1 = uuid.uuid4()
     cand_uuid_2 = uuid.uuid4()
@@ -225,15 +224,15 @@ def test_agenda_create(mock_service_class: Any, client: Any) -> None:
     assert response.status_code == status.HTTP_201_CREATED
     assert Agenda.objects.count() == 1
     item = Agenda.objects.first()
-    assert item.processo_convocacao_nome == "Processo Novo"  # type: ignore[union-attr]
-    assert item.cargo_nome == "Cargo Novo"  # type: ignore[union-attr]
-    assert str(item.processo_convocacao_uuid) == str(processo_uuid)  # type: ignore[union-attr]
+    assert item.processo_convocacao_nome == "Processo Novo"
+    assert item.cargo_nome == "Cargo Novo"
+    assert str(item.processo_convocacao_uuid) == str(processo_uuid)
 
 
 @patch("agenda.views.agenda.CandidatosApiService")
 def test_agenda_create_request_exception_api_candidatos_retorna_502(
-    mock_service_class: Any, client: Any
-) -> None:
+    mock_service_class, client
+):
     """Verifica agenda create request exception api candidatos retorna 502."""
     cand_uuid = uuid.uuid4()
     processo_uuid = uuid.uuid4()
@@ -266,9 +265,7 @@ def test_agenda_create_request_exception_api_candidatos_retorna_502(
 
 
 @patch("agenda.views.agenda.CandidatosApiService")
-def test_agenda_create_com_uuid_existente_atualiza(
-    mock_service_class: Any, client: Any
-) -> None:
+def test_agenda_create_com_uuid_existente_atualiza(mock_service_class, client):
     """Verifica agenda create com uuid existente atualiza."""
     mock_service = mock_service_class.return_value
     mock_method = mock_service.buscar_por_uuids_ordenado_por_ranking_escolha
@@ -307,8 +304,8 @@ def test_agenda_create_com_uuid_existente_atualiza(
 
 @patch("agenda.views.agenda.CandidatosApiService")
 def test_agenda_create_com_uuid_inexistente_cria_nova(
-    mock_service_class: Any, client: Any
-) -> None:
+    mock_service_class, client
+):
     """Verifica agenda create com uuid inexistente cria nova."""
     mock_service = mock_service_class.return_value
     mock_method = mock_service.buscar_por_uuids_ordenado_por_ranking_escolha
@@ -335,12 +332,12 @@ def test_agenda_create_com_uuid_inexistente_cria_nova(
     assert response.status_code == status.HTTP_201_CREATED
     assert Agenda.objects.count() == 1
     item = Agenda.objects.first()
-    assert item.cargo_nome == "Cargo Novo"  # type: ignore[union-attr]
-    assert item.processo_convocacao_nome == "Processo Novo"  # type: ignore[union-attr]
-    assert item.uuid != uuid_fake  # type: ignore[union-attr]
+    assert item.cargo_nome == "Cargo Novo"
+    assert item.processo_convocacao_nome == "Processo Novo"
+    assert item.uuid != uuid_fake
 
 
-def test_agenda_retrieve(client: Any, agenda: Any) -> None:
+def test_agenda_retrieve(client, agenda):
     """Verifica agenda retrieve."""
     url = reverse("agendas-detail", args=[agenda.uuid])
     response = client.get(url)
@@ -352,7 +349,7 @@ def test_agenda_retrieve(client: Any, agenda: Any) -> None:
     assert response.data["uuid"] == str(agenda.uuid)
 
 
-def test_agenda_update(client: Any, agenda: Any) -> None:
+def test_agenda_update(client, agenda):
     """Verifica agenda update."""
     url = reverse("agendas-detail", args=[agenda.uuid])
     data = {
@@ -366,7 +363,7 @@ def test_agenda_update(client: Any, agenda: Any) -> None:
     assert agenda.cargo_nome == "Cargo Atualizado"
 
 
-def test_agenda_delete(client: Any, agenda: Any) -> None:
+def test_agenda_delete(client, agenda):
     """Verifica agenda delete."""
     url = reverse("agendas-detail", args=[agenda.uuid])
     response = client.delete(url)
@@ -374,9 +371,7 @@ def test_agenda_delete(client: Any, agenda: Any) -> None:
     assert Agenda.objects.count() == 0
 
 
-def test_excluir_por_processo_sem_processo_uuid_retorna_400(
-    client: Any,
-) -> None:
+def test_excluir_por_processo_sem_processo_uuid_retorna_400(client):
     """Verifica excluir por processo sem processo uuid retorna 400."""
     url = reverse("agendas-excluir-por-processo")
     response = client.delete(url)
@@ -384,9 +379,7 @@ def test_excluir_por_processo_sem_processo_uuid_retorna_400(
     assert response.data["detail"] == "processo_uuid é obrigatório."
 
 
-def test_excluir_por_processo_remove_apenas_agendas_do_processo(
-    client: Any,
-) -> None:
+def test_excluir_por_processo_remove_apenas_agendas_do_processo(client):
     """Verifica excluir por processo remove apenas agendas do processo."""
     processo_a = uuid.uuid4()
     processo_b = uuid.uuid4()
@@ -425,7 +418,7 @@ def test_excluir_por_processo_remove_apenas_agendas_do_processo(
     assert Agenda.objects.filter(uuid=outra.uuid).exists()
 
 
-def test_excluir_por_processo_sem_agendas_retorna_zero(client: Any) -> None:
+def test_excluir_por_processo_sem_agendas_retorna_zero(client):
     """Verifica excluir por processo sem agendas retorna zero."""
     processo_uuid = uuid.uuid4()
     base = reverse("agendas-excluir-por-processo")

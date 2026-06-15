@@ -24,22 +24,20 @@ class Command(BaseCommand):
             if total_agendas > 0:
                 Agenda.objects.all().delete()
                 self.stdout.write(
-                    self.style.SUCCESS(
-                        f"✅ {total_agendas} agendas removidas!"
-                    )
+                    self.style.SUCCESS(f"{total_agendas} agendas removidas!")
                 )
             restantes = Agenda.objects.count()
             if restantes == 0:
                 self.stdout.write(
                     self.style.SUCCESS(
-                        "✅ Tabela de agendas completamente limpa!"
+                        "Tabela de agendas completamente limpa!"
                     )
                 )
             else:
                 self.stdout.write(
-                    self.style.WARNING(f"⚠️  Ainda restam {restantes} agendas.")
+                    self.style.WARNING(f"Ainda restam {restantes} agendas.")
                 )
         except Exception as e:
             self.stdout.write(
-                self.style.ERROR(f"❌ Erro ao remover registros: {e}")
+                self.style.ERROR(f"Erro ao remover registros: {e}")
             )

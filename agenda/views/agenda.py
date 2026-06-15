@@ -42,26 +42,13 @@ class AgendaViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
 
     def get_serializer_class(self) -> Any:
-        """Retorna serializer class.
-
-        Returns:
-            Resposta HTTP com os dados solicitados.
-        """
+        """Retorna serializer class."""
         if self.action in ["list", "retrieve"]:
             return AgendaListSerializer
         return AgendaCreateSerializer
 
     def list(self, request: Any, *args: Any, **kwargs: Any) -> Any:
-        """List.
-
-        Args:
-            request: Requisição HTTP recebida.
-            *args: Argumentos posicionais repassados ao comando.
-            **kwargs: Argumentos nomeados repassados ao comando.
-
-        Returns:
-            Resposta HTTP com os dados serializados.
-        """
+        """Listar as agendas."""
         logger.info(
             "Listando agendas",
             extra={
@@ -120,16 +107,7 @@ class AgendaViewSet(viewsets.ModelViewSet):
         return response
 
     def create(self, request: Any, *args: Any, **kwargs: Any) -> Any:
-        """Cria ou atualiza várias agendas a partir do payload.
-
-        Args:
-            request: Requisição HTTP recebida.
-            *args: Argumentos posicionais repassados ao comando.
-            **kwargs: Argumentos nomeados repassados ao comando.
-
-        Returns:
-            Resposta HTTP com os dados serializados.
-        """
+        """Cria ou atualiza várias agendas a partir do payload."""
         logger.info(
             "Criando agendas",
             extra={
@@ -158,8 +136,11 @@ class AgendaViewSet(viewsets.ModelViewSet):
                 candidatos_service = CandidatosApiService(
                     base_url=settings.CANDIDATOS_API_URL
                 )
-                results = candidatos_service.buscar_por_uuids_ordenado_por_ranking_escolha(  # noqa: E501
-                    uuids=candidatos_uuids, fields="uuid,ranking_escolha"
+                results = (
+                    candidatos_service.buscar_por_uuids_ordenado_por_ranking_escolha
+                )(
+                    uuids=candidatos_uuids,
+                    fields="uuid,ranking_escolha",
                 )
                 ordered_candidatos_uuids = [
                     str(c["uuid"])
@@ -233,14 +214,7 @@ class AgendaViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["delete"], url_path="por-processo")
     def excluir_por_processo(self, request: Any) -> Any:
-        """Remove todas as agendas vinculadas ao processo de convocação.
-
-        Args:
-            request: Requisição HTTP recebida.
-
-        Returns:
-            Resposta HTTP com os dados solicitados.
-        """
+        """Remove todas as agendas vinculadas ao processo de convocação."""
         processo_uuid = request.query_params.get("processo_uuid")
         if not processo_uuid:
             return Response(

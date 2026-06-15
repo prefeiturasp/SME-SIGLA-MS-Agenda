@@ -35,11 +35,15 @@ class CandidatosApiService:
         """Busca por uuids ordenado por ranking escolha.
 
         Args:
-            uuids: Uuids.
-            fields: Fields.
+            uuids: Lista de UUIDs dos candidatos.
+            fields: Query string de campos (padrão: uuid,ranking_escolha).
 
         Returns:
-            Lista com os registros obtidos.
+            Lista de dicionários com os campos retornados pela API, ordenada
+            por ranking_escolha ascendente.
+
+        Raises:
+            RequestException: Em caso de erro na requisição.
         """
         if not uuids:
             return []

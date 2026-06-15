@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import uuid
-from typing import Any
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -12,19 +11,19 @@ import requests
 from agenda.services.escolhas_api_service import EscolhasApiService
 
 
-def test_escolhas_api_service_init_strips_trailing_slash() -> None:
+def test_escolhas_api_service_init_strips_trailing_slash():
     """Verifica escolhas api service init strips trailing slash."""
     svc = EscolhasApiService(base_url="http://escolhas:8000/")
     assert svc.base_url == "http://escolhas:8000"
 
 
-def test_escolhas_api_service_init_custom_timeout() -> None:
+def test_escolhas_api_service_init_custom_timeout():
     """Verifica escolhas api service init custom timeout."""
     svc = EscolhasApiService(base_url="http://x.com", timeout_seconds=15)
     assert svc.timeout_seconds == 15
 
 
-def test_escolhas_api_service_init_headers() -> None:
+def test_escolhas_api_service_init_headers():
     """Verifica escolhas api service init headers."""
     svc = EscolhasApiService(base_url="http://x.com")
     assert svc._headers == {
@@ -35,8 +34,8 @@ def test_escolhas_api_service_init_headers() -> None:
 
 @patch("agenda.services.escolhas_api_service.http_client.get")
 def test_buscar_escolhas_por_processo_uuid_chama_url_params_headers_timeout(
-    mock_http_client_get: Any,
-) -> None:
+    mock_http_client_get,
+):
     """Verifica buscar escolhas por processo uuid chama url params headers."""
     mock_http_client_get.return_value.raise_for_status = MagicMock()
     mock_http_client_get.return_value.json.return_value = {
@@ -64,14 +63,14 @@ def test_buscar_escolhas_por_processo_uuid_chama_url_params_headers_timeout(
 
 @patch("agenda.services.escolhas_api_service.http_client.get")
 def test_buscar_escolhas_por_processo_uuid_converte_uuid_para_str(
-    mock_http_client_get: Any,
-) -> None:
+    mock_http_client_get,
+):
     """Verifica buscar escolhas por processo uuid converte uuid para str."""
     mock_http_client_get.return_value.raise_for_status = MagicMock()
     mock_http_client_get.return_value.json.return_value = {}
     u = uuid.uuid4()
     svc = EscolhasApiService(base_url="http://x.com")
-    svc.buscar_escolhas_por_processo_uuid(u)  # type: ignore[arg-type]
+    svc.buscar_escolhas_por_processo_uuid(u)
     assert mock_http_client_get.call_args[1]["params"][
         "vaga_escola__lote__processo_uuid"
     ] == str(u)
@@ -79,8 +78,8 @@ def test_buscar_escolhas_por_processo_uuid_converte_uuid_para_str(
 
 @patch("agenda.services.escolhas_api_service.http_client.get")
 def test_buscar_escolhas_por_processo_uuid_raise_for_status_propaga(
-    mock_http_client_get: Any,
-) -> None:
+    mock_http_client_get,
+):
     """Verifica buscar escolhas por processo uuid raise for status propaga."""
     mock_http_client_get.return_value.raise_for_status.side_effect = (
         requests.HTTPError("404")
@@ -94,8 +93,8 @@ def test_buscar_escolhas_por_processo_uuid_raise_for_status_propaga(
 
 @patch("agenda.services.escolhas_api_service.http_client.get")
 def test_buscar_escolhas_por_processo_uuid_request_exception_propaga(
-    mock_http_client_get: Any,
-) -> None:
+    mock_http_client_get,
+):
     """Verifica buscar escolhas por processo uuid request exception propaga."""
     mock_http_client_get.side_effect = requests.RequestException(
         "Connection refused"

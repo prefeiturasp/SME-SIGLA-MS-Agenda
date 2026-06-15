@@ -19,14 +19,7 @@ class CustomPagination(PageNumberPagination):
     page_size_query_param = "page_size"
 
     def get_paginated_response(self, data: Any) -> Any:
-        """Retorna paginated response.
-
-        Args:
-            data: Data.
-
-        Returns:
-            Valor do campo serializado.
-        """
+        """Retorna paginated response."""
         return Response(
             {
                 "links": {

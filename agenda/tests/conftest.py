@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import uuid
-from typing import Any
 
 import pytest
 from django.utils import timezone
@@ -12,7 +11,7 @@ from ..models import Agenda
 
 
 @pytest.fixture
-def agenda() -> Any:
+def agenda():
     """Cria uma Agenda de teste."""
     from django.utils import timezone
 
@@ -26,7 +25,7 @@ def agenda() -> Any:
 
 
 @pytest.fixture
-def agendas_multiplas() -> Any:
+def agendas_multiplas():
     """Cria múltiplas Agendas de teste."""
     itens = []
     for i in range(3):
@@ -38,5 +37,5 @@ def agendas_multiplas() -> Any:
                 cargo_nome=f"Cargo {i + 1}",
                 data_escolha=timezone.now() + timezone.timedelta(days=i),
             )
-        )  # type: ignore[attr-defined]
+        )
     return itens

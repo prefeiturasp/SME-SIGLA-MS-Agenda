@@ -54,10 +54,11 @@ class Command(BaseCommand):
             )  # type: ignore[misc,attr-defined]
             agendas_criadas.append(agenda)
             self.stdout.write(
-                f"  ✓ Agenda criada: {agenda.processo_convocacao_nome} - {agenda.cargo_nome}"  # noqa: E501
+                f"Agenda criada: {agenda.processo_convocacao_nome} - "
+                f"{agenda.cargo_nome}"
             )
         self.stdout.write(
             self.style.SUCCESS(
-                f"✅ {len(agendas_criadas)} agendas criadas com sucesso!"
+                f"{len(agendas_criadas)} agendas criadas com sucesso!"
             )
         )
