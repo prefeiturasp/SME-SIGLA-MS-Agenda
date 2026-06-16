@@ -1,6 +1,6 @@
-"""
-Configuração para testes do app agenda.
-"""
+"""Configuração para testes do app agenda."""
+
+from __future__ import annotations
 
 import uuid
 
@@ -32,9 +32,9 @@ def agendas_multiplas():
         itens.append(
             Agenda.objects.create(
                 processo_convocacao_uuid=uuid.uuid4(),
-                processo_convocacao_nome=f"Processo {i+1}",
+                processo_convocacao_nome=f"Processo {i + 1}",
                 cargo_uuid=uuid.uuid4(),
-                cargo_nome=f"Cargo {i+1}",
+                cargo_nome=f"Cargo {i + 1}",
                 data_escolha=timezone.now() + timezone.timedelta(days=i),
             )
         )

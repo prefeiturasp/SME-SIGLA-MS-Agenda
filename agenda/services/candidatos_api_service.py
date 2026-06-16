@@ -1,11 +1,10 @@
-"""
-Serviço para integração com a API de candidatos (buscar habilitados por UUIDs).
-"""
+"""Integração com a API de candidatos (habilitados por UUID)."""
+
+from __future__ import annotations
 
 import logging
 from typing import Any
 
-import requests  # noqa: F401  (necessário para mock.patch nos testes)
 from requests import RequestException
 from sigla_sdk.context import get_correlation_id
 from sigla_sdk.http.api_client import http_client
@@ -14,11 +13,15 @@ logger = logging.getLogger(__name__)
 
 
 class CandidatosApiService:
-    """
-    Serviço para chamar o endpoint de candidatos buscar-por-uuids.
-    """
+    """Serviço para chamar o endpoint de candidatos buscar-por-uuids."""
 
-    def __init__(self, base_url: str, timeout_seconds: int = 30):
+    def __init__(self, base_url: str, timeout_seconds: int = 30) -> None:
+        """Inicializa a instância com os parâmetros informados.
+
+        Args:
+            base_url: URL base do serviço remoto.
+            timeout_seconds: Tempo máximo de espera, em segundos.
+        """
         self.base_url = base_url.rstrip("/")
         self.timeout_seconds = timeout_seconds
         self._headers = {
@@ -27,15 +30,9 @@ class CandidatosApiService:
         }
 
     def buscar_por_uuids_ordenado_por_ranking_escolha(
-        self,
-        uuids: list[str],
-        fields: str = "uuid,ranking_escolha",
+        self, uuids: list[str], fields: str = "uuid,ranking_escolha"
     ) -> list[dict[str, Any]]:
-        """
-        POST para /api/v1/habilitados/buscar-por-uuids/ com
-        fields=uuid,ranking_escolha e order_by=ranking_escolha.
-        Retorna a lista de candidatos ordenada por ranking_escolha
-        de forma ascendente.
+        """Busca por uuids ordenado por ranking escolha.
 
         Args:
             uuids: Lista de UUIDs dos candidatos.
@@ -50,14 +47,9 @@ class CandidatosApiService:
         """
         if not uuids:
             return []
-
         url = f"{self.base_url}/api/v1/habilitados/buscar-por-uuids/"
-        params = {
-            "fields": fields,
-            "order_by": "ranking_escolha",
-        }
+        params = {"fields": fields, "order_by": "ranking_escolha"}
         payload = {"uuids": [str(u) for u in uuids]}
-
         logger.info(
             "Buscando candidatos por UUIDs",
             extra={
@@ -89,15 +81,13 @@ class CandidatosApiService:
                 },
             )
             raise
-
         data = response.json()
         results = data.get("results", data) if isinstance(data, dict) else data
         if not isinstance(results, list):
             results = []
 
-        # Ordenar por ranking_escolha ascendente
-        # (garantir ordem mesmo se a API não ordenar)
-        def _key(item):
+        def _key(item: Any) -> Any:
+            """Key."""
             r = item.get("ranking_escolha")
             if r is None:
                 return float("inf")
@@ -108,8 +98,7 @@ class CandidatosApiService:
 
         results = sorted(results, key=_key)
         logger.info(
-            "Candidatos buscados por UUIDs "
-            "(total=%d, ordenado por ranking_escolha asc)",
+            "Candidatos buscados por UUIDs (total=%d, ranking asc)",
             len(results),
         )
-        return results
+        return results  # type: ignore[no-any-return]

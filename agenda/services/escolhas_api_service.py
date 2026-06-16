@@ -1,6 +1,6 @@
-"""
-Serviço para integração com a API de escolhas.
-"""
+"""Serviço para integração com a API de escolhas."""
+
+from __future__ import annotations
 
 import logging
 from typing import Any
@@ -11,11 +11,15 @@ logger = logging.getLogger(__name__)
 
 
 class EscolhasApiService:
-    """
-    Serviço para chamar o endpoint de escolhas.
-    """
+    """Serviço para chamar o endpoint de escolhas."""
 
-    def __init__(self, base_url: str, timeout_seconds: int = 30):
+    def __init__(self, base_url: str, timeout_seconds: int = 30) -> None:
+        """Inicializa a instância com os parâmetros informados.
+
+        Args:
+            base_url: URL base do serviço remoto.
+            timeout_seconds: Tempo máximo de espera, em segundos.
+        """
         self.base_url = base_url.rstrip("/")
         self.timeout_seconds = timeout_seconds
         self._headers = {
@@ -26,18 +30,13 @@ class EscolhasApiService:
     def buscar_escolhas_por_processo_uuid(
         self, vaga_escola__lote__processo_uuid: str
     ) -> dict[str, Any]:
-        """
-        GET para /api/v1/escolhas/?vaga_escola__lote__processo_uuid=<uuid>
-        Retorna a resposta da API de escolhas filtrada por processo.
+        """Busca escolhas por processo uuid.
 
         Args:
-            processo_uuid: UUID do processo de convocação.
+            vaga_escola__lote__processo_uuid: UUID do processo na vaga.
 
         Returns:
-            Dicionário com a resposta da API (results, count, etc.).
-
-        Raises:
-            Exception: Em caso de erro na requisição.
+            Dicionário com os dados processados.
         """
         url = f"{self.base_url}/api/v1/escolhas/"
         params = {
@@ -47,7 +46,6 @@ class EscolhasApiService:
             "no_page": True,
             "fields": "candidato_uuid",
         }
-
         response = http_client.get(
             url,
             params=params,
@@ -55,10 +53,9 @@ class EscolhasApiService:
             timeout=self.timeout_seconds,
         )
         response.raise_for_status()
-
         data = response.json()
         logger.info(
             "Escolhas buscadas por vaga_escola__lote__processo_uuid=%s",
             vaga_escola__lote__processo_uuid,
         )
-        return data
+        return data  # type: ignore[no-any-return]

@@ -1,8 +1,9 @@
-"""
-DRF views for the agenda module.
-"""
+"""DRF views for the agenda module."""
+
+from __future__ import annotations
 
 import logging
+from typing import Any
 
 from django.conf import settings
 from django_filters.rest_framework import DjangoFilterBackend
@@ -29,9 +30,7 @@ logger = logging.getLogger(__name__)
 
 
 class AgendaViewSet(viewsets.ModelViewSet):
-    """
-    ViewSet para gerenciar agendas de convocação.
-    """
+    """ViewSet para gerenciar agendas de convocação."""
 
     queryset = Agenda.objects.all()
     permission_classes = [AllowAny]
@@ -42,18 +41,14 @@ class AgendaViewSet(viewsets.ModelViewSet):
     ordering = ["escolha_em", "hora_convocacao_inicio"]
     pagination_class = CustomPagination
 
-    def get_serializer_class(self):
-        """
-        Retorna o serializer apropriado baseado na ação.
-        - AgendaListSerializer para listagem (list) e detalhes (retrieve)
-        - AgendaCreateSerializer para criação (create), atualização
-          (update) e atualização parcial (partial_update)
-        """
+    def get_serializer_class(self) -> Any:
+        """Retorna serializer class."""
         if self.action in ["list", "retrieve"]:
             return AgendaListSerializer
         return AgendaCreateSerializer
 
-    def list(self, request, *args, **kwargs):
+    def list(self, request: Any, *args: Any, **kwargs: Any) -> Any:
+        """Listar as agendas."""
         logger.info(
             "Listando agendas",
             extra={
@@ -76,12 +71,12 @@ class AgendaViewSet(viewsets.ModelViewSet):
                 primeira_agenda.get("candidatos_uuids") or []
             )
             escolhas_service = EscolhasApiService(
-                base_url=settings.ESCOLHAS_API_URL,
+                base_url=settings.ESCOLHAS_API_URL
             )
             try:
                 escolhas_data = (
                     escolhas_service.buscar_escolhas_por_processo_uuid(
-                        str(processo_uuid),
+                        str(processo_uuid)
                     )
                 )
             except RequestException as exc:
@@ -111,20 +106,8 @@ class AgendaViewSet(viewsets.ModelViewSet):
                 )
         return response
 
-    def create(self, request, *args, **kwargs):
-        """
-        Cria ou atualiza várias agendas a partir do payload com estrutura:
-        - agendas: lista de objetos agenda (cada um com classificacao
-          = quantidade de candidatos)
-        - candidatos_uuids: lista de UUIDs de candidatos
-        - processo_uuid: UUID do processo
-        - processo_nome: nome do processo
-
-        Os candidatos são buscados na API de candidatos
-        (buscar-por-uuids), ordenados por ranking_escolha ascendente;
-        cada agenda recebe um fatia da lista conforme o campo
-        classificacao.
-        """
+    def create(self, request: Any, *args: Any, **kwargs: Any) -> Any:
+        """Cria ou atualiza várias agendas a partir do payload."""
         logger.info(
             "Criando agendas",
             extra={
@@ -147,15 +130,15 @@ class AgendaViewSet(viewsets.ModelViewSet):
         candidatos_uuids = data["candidatos_uuids"]
         processo_uuid = data["processo_uuid"]
         processo_nome = data.get("processo_nome") or ""
-
-        # Buscar candidatos ordenados por ranking_escolha (asc) na API
         ordered_candidatos_uuids = []
         if candidatos_uuids:
             try:
                 candidatos_service = CandidatosApiService(
-                    base_url=settings.CANDIDATOS_API_URL,
+                    base_url=settings.CANDIDATOS_API_URL
                 )
-                results = candidatos_service.buscar_por_uuids_ordenado_por_ranking_escolha(  # noqa: E501
+                results = (
+                    candidatos_service.buscar_por_uuids_ordenado_por_ranking_escolha
+                )(
                     uuids=candidatos_uuids,
                     fields="uuid,ranking_escolha",
                 )
@@ -172,12 +155,9 @@ class AgendaViewSet(viewsets.ModelViewSet):
                     {"detail": "Erro ao consultar API de candidatos."},
                     status=status.HTTP_502_BAD_GATEWAY,
                 )
-
-        # Fatiar a lista ordenada de UUIDs conforme classificacao
         cursor = 0
         agendas_criadas = []
         agendas_atualizadas = []
-
         for item in agendas_data:
             if not item.get("retardatario"):
                 qty = item.get("classificacao") or 0
@@ -187,13 +167,11 @@ class AgendaViewSet(viewsets.ModelViewSet):
                 slice_uuids = ordered_candidatos_uuids[
                     : item.get("classificacao")
                 ]
-            # Montar dados da agenda com processo e candidatos fatiados
             agenda_item = dict(item)
             agenda_item["processo_convocacao_uuid"] = processo_uuid
             agenda_item["processo_convocacao_nome"] = processo_nome
             agenda_item["candidatos_uuids"] = slice_uuids
             uuid_provido = agenda_item.get("uuid")
-
             if uuid_provido:
                 try:
                     agenda_existente = Agenda.objects.get(uuid=uuid_provido)
@@ -213,7 +191,6 @@ class AgendaViewSet(viewsets.ModelViewSet):
                 serializer.is_valid(raise_exception=True)
                 agenda_nova = serializer.save()
                 agendas_criadas.append(agenda_nova)
-
         todas_agendas = agendas_criadas + agendas_atualizadas
         response_serializer = AgendaListSerializer(todas_agendas, many=True)
         status_code = (
@@ -236,11 +213,8 @@ class AgendaViewSet(viewsets.ModelViewSet):
         return Response(response_serializer.data, status=status_code)
 
     @action(detail=False, methods=["delete"], url_path="por-processo")
-    def excluir_por_processo(self, request):
-        """
-        Remove todas as agendas vinculadas ao processo de convocação informado.
-        Query: processo_uuid=<uuid>
-        """
+    def excluir_por_processo(self, request: Any) -> Any:
+        """Remove todas as agendas vinculadas ao processo de convocação."""
         processo_uuid = request.query_params.get("processo_uuid")
         if not processo_uuid:
             return Response(
@@ -248,7 +222,7 @@ class AgendaViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
         deleted, _ = Agenda.objects.filter(
-            processo_convocacao_uuid=processo_uuid,
+            processo_convocacao_uuid=processo_uuid
         ).delete()
         logger.info(
             "Agendas excluídas por processo",
