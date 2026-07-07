@@ -426,3 +426,84 @@ def test_excluir_por_processo_sem_agendas_retorna_zero(client):
     response = client.delete(url)
     assert response.status_code == status.HTTP_200_OK
     assert response.data["excluidas"] == 0
+
+
+def test_excluir_por_processo_e_cargo_sem_processo_uuid_retorna_400(client):
+    """Verifica excluir por processo e cargo sem processo uuid retorna 400."""
+    base = reverse("agendas-excluir-por-processo-e-cargo")
+    url = f'{base}?{urlencode({'cargo': str(uuid.uuid4())})}'
+    response = client.delete(url)
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.data["detail"] == "processo_uuid é obrigatório."
+
+
+def test_excluir_por_processo_e_cargo_sem_cargo_retorna_400(client):
+    """Verifica excluir por processo e cargo sem cargo retorna 400."""
+    base = reverse("agendas-excluir-por-processo-e-cargo")
+    url = f'{base}?{urlencode({'processo_uuid': str(uuid.uuid4())})}'
+    response = client.delete(url)
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.data["detail"] == "cargo é obrigatório."
+
+
+def test_excluir_por_processo_e_cargo_remove_apenas_agendas_do_filtro(client):
+    """Verifica exclusão apenas das agendas do processo e cargo informados."""
+    processo_a = uuid.uuid4()
+    processo_b = uuid.uuid4()
+    cargo_a = uuid.uuid4()
+    cargo_b = uuid.uuid4()
+    Agenda.objects.create(
+        processo_convocacao_uuid=processo_a,
+        processo_convocacao_nome="Processo A",
+        cargo_uuid=cargo_a,
+        cargo_nome="Cargo A",
+        data_escolha=timezone.now(),
+        candidatos_uuids=[],
+    )
+    mesmo_processo_outro_cargo = Agenda.objects.create(
+        processo_convocacao_uuid=processo_a,
+        processo_convocacao_nome="Processo A",
+        cargo_uuid=cargo_b,
+        cargo_nome="Cargo B",
+        data_escolha=timezone.now(),
+        candidatos_uuids=[],
+    )
+    outro_processo_mesmo_cargo = Agenda.objects.create(
+        processo_convocacao_uuid=processo_b,
+        processo_convocacao_nome="Processo B",
+        cargo_uuid=cargo_a,
+        cargo_nome="Cargo A",
+        data_escolha=timezone.now(),
+        candidatos_uuids=[],
+    )
+    base = reverse("agendas-excluir-por-processo-e-cargo")
+    url = (
+        f'{base}?{urlencode({
+            "processo_uuid": str(processo_a),
+            "cargo": str(cargo_a),
+        })}'
+    )
+    response = client.delete(url)
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data["excluidas"] == 1
+    assert Agenda.objects.count() == 2
+    assert Agenda.objects.filter(
+        uuid=mesmo_processo_outro_cargo.uuid
+    ).exists()
+    assert Agenda.objects.filter(
+        uuid=outro_processo_mesmo_cargo.uuid
+    ).exists()
+
+
+def test_excluir_por_processo_e_cargo_sem_agendas_retorna_zero(client):
+    """Verifica excluir por processo e cargo sem agendas retorna zero."""
+    base = reverse("agendas-excluir-por-processo-e-cargo")
+    url = (
+        f'{base}?{urlencode({
+            "processo_uuid": str(uuid.uuid4()),
+            "cargo": str(uuid.uuid4()),
+        })}'
+    )
+    response = client.delete(url)
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data["excluidas"] == 0
