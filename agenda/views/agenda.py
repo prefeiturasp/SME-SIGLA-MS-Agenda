@@ -244,22 +244,22 @@ class AgendaViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        cargo_uuid = request.query_params.get("cargo")
-        if not cargo_uuid:
+        cargo_codigo = request.query_params.get("cargo")
+        if not cargo_codigo:
             return Response(
                 {"detail": "cargo é obrigatório."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
         deleted, _ = Agenda.objects.filter(
-            processo_convocacao_uuid=processo_uuid, cargo_uuid=cargo_uuid
+            processo_convocacao_uuid=processo_uuid, cargo_codigo=cargo_codigo
         ).delete()
         logger.info(
             "Agendas excluídas por processo e cargo",
             extra={
                 "correlation_id": get_correlation_id(),
                 "processo_uuid": processo_uuid,
-                "cargo_uuid": cargo_uuid,
+                "cargo_codigo": cargo_codigo,
                 "excluidas": deleted,
             },
         )
