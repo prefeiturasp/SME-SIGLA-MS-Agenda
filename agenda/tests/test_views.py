@@ -457,6 +457,7 @@ def test_excluir_por_processo_e_cargo_remove_apenas_agendas_do_filtro(client):
         processo_convocacao_nome="Processo A",
         cargo_uuid=cargo_a,
         cargo_nome="Cargo A",
+        cargo_codigo="123456",
         data_escolha=timezone.now(),
         candidatos_uuids=[],
     )
@@ -465,6 +466,7 @@ def test_excluir_por_processo_e_cargo_remove_apenas_agendas_do_filtro(client):
         processo_convocacao_nome="Processo A",
         cargo_uuid=cargo_b,
         cargo_nome="Cargo B",
+        cargo_codigo="123456",
         data_escolha=timezone.now(),
         candidatos_uuids=[],
     )
@@ -473,6 +475,7 @@ def test_excluir_por_processo_e_cargo_remove_apenas_agendas_do_filtro(client):
         processo_convocacao_nome="Processo B",
         cargo_uuid=cargo_a,
         cargo_nome="Cargo A",
+        cargo_codigo="1234567",
         data_escolha=timezone.now(),
         candidatos_uuids=[],
     )
@@ -480,14 +483,14 @@ def test_excluir_por_processo_e_cargo_remove_apenas_agendas_do_filtro(client):
     url = (
         f'{base}?{urlencode({
             "processo_uuid": str(processo_a),
-            "cargo": str(cargo_a),
+            "cargo": "123456",
         })}'
     )
     response = client.delete(url)
     assert response.status_code == status.HTTP_200_OK
-    assert response.data["excluidas"] == 1
-    assert Agenda.objects.count() == 2
-    assert Agenda.objects.filter(
+    assert response.data["excluidas"] == 2
+    assert Agenda.objects.count() == 1
+    assert not Agenda.objects.filter(
         uuid=mesmo_processo_outro_cargo.uuid
     ).exists()
     assert Agenda.objects.filter(
