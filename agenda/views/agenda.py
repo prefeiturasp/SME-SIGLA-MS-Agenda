@@ -233,3 +233,34 @@ class AgendaViewSet(viewsets.ModelViewSet):
             },
         )
         return Response({"excluidas": deleted}, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["delete"], url_path="por-processo-e-cargo")
+    def excluir_por_processo_e_cargo(self, request: Any) -> Any:
+        """Remove agendas vinculadas ao processo de convocação e ao cargo."""
+        processo_uuid = request.query_params.get("processo_uuid")
+        if not processo_uuid:
+            return Response(
+                {"detail": "processo_uuid é obrigatório."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        cargo_codigo = request.query_params.get("cargo")
+        if not cargo_codigo:
+            return Response(
+                {"detail": "cargo é obrigatório."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        deleted, _ = Agenda.objects.filter(
+            processo_convocacao_uuid=processo_uuid, cargo_codigo=cargo_codigo
+        ).delete()
+        logger.info(
+            "Agendas excluídas por processo e cargo",
+            extra={
+                "correlation_id": get_correlation_id(),
+                "processo_uuid": processo_uuid,
+                "cargo_codigo": cargo_codigo,
+                "excluidas": deleted,
+            },
+        )
+        return Response({"excluidas": deleted}, status=status.HTTP_200_OK)
