@@ -7,6 +7,8 @@ MIDDLEWARE = [
     mw for mw in MIDDLEWARE if not mw.startswith("sigla_sdk.")
 ]
 
+ELASTIC_APM = {**ELASTIC_APM, "ENABLED": False}
+
 # PostgreSQL somente para testes (banco isolado)
 DATABASES = {
     "default": {

@@ -3,7 +3,7 @@
 
 .PHONY: help pep257 pep484 pep-check makemigrations migrate runserver coverage test clean install format lint check
 
-PEP_APP_DIRS = agenda
+PEP_APP_DIRS = apps/agenda apps/core apps/integracao apps/candidatos apps/escolhas
 
 # Comando padrão - mostra ajuda
 help:
@@ -40,7 +40,7 @@ runserver:
 # Executa testes com relatório de cobertura
 coverage:
 	@echo "Executando testes com cobertura..."
-	pytest --ds=config.settings_test --cov=agenda --cov-report=term-missing --cov-report=html
+	pytest --ds=config.settings_test --cov=apps --cov-report=term-missing --cov-report=html
 
 # Executa todos os testes
 test:
