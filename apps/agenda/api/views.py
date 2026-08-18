@@ -24,7 +24,7 @@ from agenda.serializers import (
 )
 from agenda.services.candidatos_api_service import CandidatosApiService
 from agenda.services.escolhas_api_service import EscolhasApiService
-from agenda.utils import CustomPagination
+from core.utils import CustomPagination
 
 logger = logging.getLogger(__name__)
 

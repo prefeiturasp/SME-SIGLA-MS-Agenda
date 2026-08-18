@@ -87,7 +87,6 @@ class CandidatosApiService:
             results = []
 
         def _key(item: Any) -> Any:
-            """Key."""
             r = item.get("ranking_escolha")
             if r is None:
                 return float("inf")

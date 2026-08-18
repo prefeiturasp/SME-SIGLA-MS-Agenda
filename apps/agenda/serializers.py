@@ -74,8 +74,6 @@ class AgendaListSerializer(serializers.ModelSerializer):
     """Serializer para listagem de agendas (list e retrieve)."""
 
     class Meta:
-        """Representa Meta."""
-
         model = Agenda
         fields = [
             "uuid",
@@ -104,8 +102,6 @@ class AgendaCreateSerializer(serializers.ModelSerializer):
     """Serializer para criação e atualização de agendas."""
 
     class Meta:
-        """Representa Meta."""
-
         model = Agenda
         fields = [
             "uuid",

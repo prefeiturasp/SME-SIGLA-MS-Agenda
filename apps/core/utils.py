@@ -1,4 +1,4 @@
-"""Módulo utils."""
+"""Utilitários compartilhados do projeto."""
 
 from __future__ import annotations
 
@@ -12,14 +12,14 @@ DEFAULT_PAGE_SIZE = 10
 
 
 class CustomPagination(PageNumberPagination):
-    """Representa CustomPagination."""
+    """Pagina resultados com links, totais e tamanho customizado."""
 
     page = DEFAULT_PAGE  # type: ignore[assignment]
     page_size = DEFAULT_PAGE_SIZE
     page_size_query_param = "page_size"
 
     def get_paginated_response(self, data: Any) -> Any:
-        """Retorna paginated response."""
+        """Monta resposta JSON com count, page, links e results."""
         return Response(
             {
                 "links": {

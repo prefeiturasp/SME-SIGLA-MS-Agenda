@@ -14,7 +14,7 @@ from requests import RequestException
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from ..models import Agenda
+from agenda.models import Agenda
 
 pytestmark = pytest.mark.django_db
 
@@ -69,7 +69,7 @@ def test_agenda_list(client, agenda):
     )
 
 
-@patch("agenda.views.agenda.EscolhasApiService")
+@patch("agenda.api.views.EscolhasApiService")
 def test_list_agenda_online_retorna_candidatos_uuids_restantes(
     mock_escolhas_class, client
 ):
@@ -95,7 +95,7 @@ def test_list_agenda_online_retorna_candidatos_uuids_restantes(
     assert set(response.data["candidatos_uuids_restantes"]) == {cand_2, cand_3}
 
 
-@patch("agenda.views.agenda.EscolhasApiService")
+@patch("agenda.api.views.EscolhasApiService")
 def test_list_agenda_online_restantes_vazio_quando_todos_escolhidos(
     mock_escolhas_class, client
 ):
@@ -120,7 +120,7 @@ def test_list_agenda_online_restantes_vazio_quando_todos_escolhidos(
     assert response.data["candidatos_uuids_restantes"] == []
 
 
-@patch("agenda.views.agenda.EscolhasApiService")
+@patch("agenda.api.views.EscolhasApiService")
 def test_list_agenda_online_aceita_escolhas_com_results(
     mock_escolhas_class, client
 ):
@@ -169,7 +169,7 @@ def test_list_lista_vazia_nao_quebra(client):
     assert "candidatos_uuids_restantes" not in response.data
 
 
-@patch("agenda.views.agenda.EscolhasApiService")
+@patch("agenda.api.views.EscolhasApiService")
 def test_list_agenda_online_request_exception_retorna_200_sem_restantes(
     mock_escolhas_class, client
 ):
@@ -191,7 +191,7 @@ def test_list_agenda_online_request_exception_retorna_200_sem_restantes(
     assert "candidatos_uuids_restantes" not in response.data
 
 
-@patch("agenda.views.agenda.CandidatosApiService")
+@patch("agenda.api.views.CandidatosApiService")
 def test_agenda_create(mock_service_class, client):
     """Verifica agenda create."""
     cand_uuid_1 = uuid.uuid4()
@@ -229,7 +229,7 @@ def test_agenda_create(mock_service_class, client):
     assert str(item.processo_convocacao_uuid) == str(processo_uuid)
 
 
-@patch("agenda.views.agenda.CandidatosApiService")
+@patch("agenda.api.views.CandidatosApiService")
 def test_agenda_create_request_exception_api_candidatos_retorna_502(
     mock_service_class, client
 ):
@@ -264,7 +264,7 @@ def test_agenda_create_request_exception_api_candidatos_retorna_502(
     assert Agenda.objects.count() == 0
 
 
-@patch("agenda.views.agenda.CandidatosApiService")
+@patch("agenda.api.views.CandidatosApiService")
 def test_agenda_create_com_uuid_existente_atualiza(mock_service_class, client):
     """Verifica agenda create com uuid existente atualiza."""
     mock_service = mock_service_class.return_value
@@ -302,7 +302,7 @@ def test_agenda_create_com_uuid_existente_atualiza(mock_service_class, client):
     assert agenda_existente.processo_convocacao_nome == "Processo Atualizado"
 
 
-@patch("agenda.views.agenda.CandidatosApiService")
+@patch("agenda.api.views.CandidatosApiService")
 def test_agenda_create_com_uuid_inexistente_cria_nova(
     mock_service_class, client
 ):

@@ -1,4 +1,4 @@
-"""Módulo models/base."""
+"""Modelos compartilhados do projeto."""
 
 import uuid
 
@@ -19,7 +19,5 @@ class BaseModel(models.Model):
     )
 
     class Meta:
-        """Representa Meta."""
-
         abstract = True
         ordering = ["-criado_em"]

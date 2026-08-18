@@ -7,7 +7,7 @@ import uuid
 import pytest
 from django.utils import timezone
 
-from ..models import Agenda
+from agenda.models import Agenda
 
 
 @pytest.fixture

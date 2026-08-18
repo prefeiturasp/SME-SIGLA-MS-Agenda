@@ -1,8 +1,8 @@
-"""Django admin configuration for the processes module."""
+"""Django admin configuration for the agenda module."""
 
 from django.contrib import admin
 
-from .models import Agenda
+from agenda.models import Agenda
 
 
 @admin.register(Agenda)

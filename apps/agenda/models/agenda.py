@@ -5,11 +5,11 @@ from __future__ import annotations
 from typing import Any
 
 from auditlog.registry import auditlog
+from core.models import BaseModel
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils import timezone
 
-from .base import BaseModel
 from .constants import MODALIDADE_CHOICES
 
 
@@ -67,8 +67,6 @@ class Agenda(BaseModel):
     )
 
     class Meta:
-        """Representa Meta."""
-
         verbose_name = "Agenda de Convocação"
         verbose_name_plural = "Agendas de Convocação"
         ordering = ["escolha_em", "hora_convocacao_inicio"]
