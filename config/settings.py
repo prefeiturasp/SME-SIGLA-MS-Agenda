@@ -49,9 +49,6 @@ INSTALLED_APPS = [
     "auditlog",
     "drf_spectacular",
     "core",
-    "integracao",
-    "candidatos",
-    "escolhas",
     "agenda",
 ]
 
@@ -211,16 +208,6 @@ LOGGING = {
         },
         # Seu Logger de Aplicação (substitua pelo nome do seu app)
         "agenda": {
-            "handlers": ["console"],
-            "level": "DEBUG",
-            "propagate": False,
-        },
-        "candidatos": {
-            "handlers": ["console"],
-            "level": "DEBUG",
-            "propagate": False,
-        },
-        "escolhas": {
             "handlers": ["console"],
             "level": "DEBUG",
             "propagate": False,

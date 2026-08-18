@@ -3,7 +3,7 @@
 
 .PHONY: help pep257 pep484 pep-check makemigrations migrate runserver coverage test clean install format lint check
 
-PEP_APP_DIRS = apps/agenda apps/core apps/integracao apps/candidatos apps/escolhas
+PEP_APP_DIRS = apps/agenda apps/core
 
 # Comando padrão - mostra ajuda
 help:

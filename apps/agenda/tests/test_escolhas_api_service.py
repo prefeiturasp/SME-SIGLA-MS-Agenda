@@ -1,4 +1,4 @@
-"""Testes unitários para escolhas/services/escolhas_api_service.py."""
+"""Testes unitários para agenda/services/escolhas_api_service.py."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 import requests
 
-from escolhas.services.escolhas_api_service import EscolhasApiService
+from agenda.services.escolhas_api_service import EscolhasApiService
 
 
 def test_escolhas_api_service_init_strips_trailing_slash():
@@ -32,7 +32,7 @@ def test_escolhas_api_service_init_headers():
     }
 
 
-@patch("escolhas.services.escolhas_api_service.http_client.get")
+@patch("agenda.services.escolhas_api_service.http_client.get")
 def test_buscar_escolhas_por_processo_uuid_chama_url_params_headers_timeout(
     mock_http_client_get,
 ):
@@ -61,7 +61,7 @@ def test_buscar_escolhas_por_processo_uuid_chama_url_params_headers_timeout(
     mock_http_client_get.return_value.raise_for_status.assert_called_once()
 
 
-@patch("escolhas.services.escolhas_api_service.http_client.get")
+@patch("agenda.services.escolhas_api_service.http_client.get")
 def test_buscar_escolhas_por_processo_uuid_converte_uuid_para_str(
     mock_http_client_get,
 ):
@@ -76,7 +76,7 @@ def test_buscar_escolhas_por_processo_uuid_converte_uuid_para_str(
     ] == str(u)
 
 
-@patch("escolhas.services.escolhas_api_service.http_client.get")
+@patch("agenda.services.escolhas_api_service.http_client.get")
 def test_buscar_escolhas_por_processo_uuid_raise_for_status_propaga(
     mock_http_client_get,
 ):
@@ -91,7 +91,7 @@ def test_buscar_escolhas_por_processo_uuid_raise_for_status_propaga(
         )
 
 
-@patch("escolhas.services.escolhas_api_service.http_client.get")
+@patch("agenda.services.escolhas_api_service.http_client.get")
 def test_buscar_escolhas_por_processo_uuid_request_exception_propaga(
     mock_http_client_get,
 ):

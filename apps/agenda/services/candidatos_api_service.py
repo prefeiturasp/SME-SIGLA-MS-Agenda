@@ -9,13 +9,25 @@ from requests import RequestException
 from sigla_sdk.context import get_correlation_id
 from sigla_sdk.http.api_client import http_client
 
-from integracao.base import BaseApiService
-
 logger = logging.getLogger(__name__)
 
 
-class CandidatosApiService(BaseApiService):
+class CandidatosApiService:
     """Serviço para chamar o endpoint de candidatos buscar-por-uuids."""
+
+    def __init__(self, base_url: str, timeout_seconds: int = 30) -> None:
+        """Inicializa a instância com os parâmetros informados.
+
+        Args:
+            base_url: URL base do serviço remoto.
+            timeout_seconds: Tempo máximo de espera, em segundos.
+        """
+        self.base_url = base_url.rstrip("/")
+        self.timeout_seconds = timeout_seconds
+        self._headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+        }
 
     def buscar_por_uuids_ordenado_por_ranking_escolha(
         self, uuids: list[str], fields: str = "uuid,ranking_escolha"

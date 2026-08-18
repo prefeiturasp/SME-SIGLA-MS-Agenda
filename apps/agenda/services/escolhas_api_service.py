@@ -7,13 +7,25 @@ from typing import Any
 
 from sigla_sdk.http.api_client import http_client
 
-from integracao.base import BaseApiService
-
 logger = logging.getLogger(__name__)
 
 
-class EscolhasApiService(BaseApiService):
+class EscolhasApiService:
     """Serviço para chamar o endpoint de escolhas."""
+
+    def __init__(self, base_url: str, timeout_seconds: int = 30) -> None:
+        """Inicializa a instância com os parâmetros informados.
+
+        Args:
+            base_url: URL base do serviço remoto.
+            timeout_seconds: Tempo máximo de espera, em segundos.
+        """
+        self.base_url = base_url.rstrip("/")
+        self.timeout_seconds = timeout_seconds
+        self._headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+        }
 
     def buscar_escolhas_por_processo_uuid(
         self, vaga_escola__lote__processo_uuid: str

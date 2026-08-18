@@ -21,7 +21,7 @@ ignore = [
 "*/settings*.py" = ["F401", "F403", "F405", "E501", "E402"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["agenda", "core", "integracao", "candidatos", "escolhas", "config"]
+known-first-party = ["agenda", "core", "config"]
 
 [tool.ruff.format]
 quote-style = "double"

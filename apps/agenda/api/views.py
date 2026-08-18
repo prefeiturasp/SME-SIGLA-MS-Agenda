@@ -5,11 +5,8 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from candidatos.services.candidatos_api_service import CandidatosApiService
-from core.utils import CustomPagination
 from django.conf import settings
 from django_filters.rest_framework import DjangoFilterBackend
-from escolhas.services.escolhas_api_service import EscolhasApiService
 from requests import RequestException
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -25,6 +22,9 @@ from agenda.serializers import (
     AgendaListSerializer,
     CreateAgendasPayloadSerializer,
 )
+from agenda.services.candidatos_api_service import CandidatosApiService
+from agenda.services.escolhas_api_service import EscolhasApiService
+from core.utils import CustomPagination
 
 logger = logging.getLogger(__name__)
 
