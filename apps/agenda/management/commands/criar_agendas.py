@@ -9,7 +9,7 @@ from typing import Any
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
-from agenda.models import Agenda
+from agenda.repository import AgendaRepository
 
 
 class Command(BaseCommand):
@@ -44,14 +44,14 @@ class Command(BaseCommand):
         for _ in range(count):
             processo = random.choice(processos_disponiveis)
             cargo = random.choice(cargos_disponiveis)
-            agenda = Agenda.objects.create(
+            agenda = AgendaRepository.criar(
                 processo_convocacao_uuid=processo["uuid"],
                 processo_convocacao_nome=processo["nome"],
                 cargo_uuid=cargo["uuid"],
                 cargo_nome=cargo["nome"],
                 data_escolha=timezone.now()
                 + timezone.timedelta(days=random.randint(0, 15)),
-            )  # type: ignore[misc,attr-defined]
+            )
             agendas_criadas.append(agenda)
             self.stdout.write(
                 f"Agenda criada: {agenda.processo_convocacao_nome} - "

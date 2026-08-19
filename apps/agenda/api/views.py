@@ -17,6 +17,7 @@ from sigla_sdk.context import get_correlation_id
 
 from agenda.filters import AgendaOrderingFilter
 from agenda.models import Agenda
+from agenda.repository import AgendaRepository
 from agenda.serializers import (
     AgendaCreateSerializer,
     AgendaListSerializer,
@@ -174,7 +175,9 @@ class AgendaViewSet(viewsets.ModelViewSet):
             uuid_provido = agenda_item.get("uuid")
             if uuid_provido:
                 try:
-                    agenda_existente = Agenda.objects.get(uuid=uuid_provido)
+                    agenda_existente = AgendaRepository.buscar_pelo_uuid(
+                        uuid_provido
+                    )
                     serializer = AgendaCreateSerializer(
                         agenda_existente, data=agenda_item, partial=False
                     )
@@ -192,7 +195,6 @@ class AgendaViewSet(viewsets.ModelViewSet):
                 agenda_nova = serializer.save()
                 agendas_criadas.append(agenda_nova)
         todas_agendas = agendas_criadas + agendas_atualizadas
-        response_serializer = AgendaListSerializer(todas_agendas, many=True)
         status_code = (
             status.HTTP_201_CREATED if agendas_criadas else status.HTTP_200_OK
         )
@@ -210,7 +212,10 @@ class AgendaViewSet(viewsets.ModelViewSet):
                 "status_code": status_code,
             },
         )
-        return Response(response_serializer.data, status=status_code)
+        return Response(
+            AgendaRepository.serializar_lista(todas_agendas),
+            status=status_code,
+        )
 
     @action(detail=False, methods=["delete"], url_path="por-processo")
     def excluir_por_processo(self, request: Any) -> Any:
@@ -221,9 +226,7 @@ class AgendaViewSet(viewsets.ModelViewSet):
                 {"detail": "processo_uuid é obrigatório."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        deleted, _ = Agenda.objects.filter(
-            processo_convocacao_uuid=processo_uuid
-        ).delete()
+        deleted = AgendaRepository.excluir_do_processo(processo_uuid)
         logger.info(
             "Agendas excluídas por processo",
             extra={
@@ -251,9 +254,9 @@ class AgendaViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        deleted, _ = Agenda.objects.filter(
-            processo_convocacao_uuid=processo_uuid, cargo_codigo=cargo_codigo
-        ).delete()
+        deleted = AgendaRepository.excluir_do_processo_e_cargo(
+            processo_uuid, cargo_codigo
+        )
         logger.info(
             "Agendas excluídas por processo e cargo",
             extra={
