@@ -1,8 +1,4 @@
-"""Repositório de acesso a dados de agendas.
-
-As consultas de leitura retornam dados já serializados (dict / list[dict]),
-não QuerySets do Django.
-"""
+"""Repositório de acesso a dados de agendas."""
 
 from __future__ import annotations
 
@@ -17,15 +13,6 @@ logger = logging.getLogger(__name__)
 
 class AgendaRepository:
     """Acesso aos dados de agendas (consultas e persistência)."""
-
-    @classmethod
-    def serializar_lista(
-        cls, agendas: list[Agenda]
-    ) -> list[dict[str, Any]]:
-        """Converte agendas em dicionários no formato da listagem da API."""
-        from agenda.serializers import AgendaListSerializer
-
-        return AgendaListSerializer(agendas, many=True).data
 
     @classmethod
     def buscar_pelo_uuid(cls, agenda_uuid: str | UUID) -> Agenda:

@@ -195,6 +195,7 @@ class AgendaViewSet(viewsets.ModelViewSet):
                 agenda_nova = serializer.save()
                 agendas_criadas.append(agenda_nova)
         todas_agendas = agendas_criadas + agendas_atualizadas
+        response_serializer = AgendaListSerializer(todas_agendas, many=True)
         status_code = (
             status.HTTP_201_CREATED if agendas_criadas else status.HTTP_200_OK
         )
@@ -212,10 +213,7 @@ class AgendaViewSet(viewsets.ModelViewSet):
                 "status_code": status_code,
             },
         )
-        return Response(
-            AgendaRepository.serializar_lista(todas_agendas),
-            status=status_code,
-        )
+        return Response(response_serializer.data, status=status_code)
 
     @action(detail=False, methods=["delete"], url_path="por-processo")
     def excluir_por_processo(self, request: Any) -> Any:
