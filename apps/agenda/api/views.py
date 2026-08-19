@@ -17,6 +17,7 @@ from sigla_sdk.context import get_correlation_id
 
 from agenda.filters import AgendaOrderingFilter
 from agenda.models import Agenda
+from agenda.repository import AgendaRepository
 from agenda.serializers import (
     AgendaCreateSerializer,
     AgendaListSerializer,
@@ -174,7 +175,9 @@ class AgendaViewSet(viewsets.ModelViewSet):
             uuid_provido = agenda_item.get("uuid")
             if uuid_provido:
                 try:
-                    agenda_existente = Agenda.objects.get(uuid=uuid_provido)
+                    agenda_existente = AgendaRepository.buscar_pelo_uuid(
+                        uuid_provido
+                    )
                     serializer = AgendaCreateSerializer(
                         agenda_existente, data=agenda_item, partial=False
                     )
@@ -221,9 +224,7 @@ class AgendaViewSet(viewsets.ModelViewSet):
                 {"detail": "processo_uuid é obrigatório."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        deleted, _ = Agenda.objects.filter(
-            processo_convocacao_uuid=processo_uuid
-        ).delete()
+        deleted = AgendaRepository.excluir_do_processo(processo_uuid)
         logger.info(
             "Agendas excluídas por processo",
             extra={
@@ -251,9 +252,9 @@ class AgendaViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        deleted, _ = Agenda.objects.filter(
-            processo_convocacao_uuid=processo_uuid, cargo_codigo=cargo_codigo
-        ).delete()
+        deleted = AgendaRepository.excluir_do_processo_e_cargo(
+            processo_uuid, cargo_codigo
+        )
         logger.info(
             "Agendas excluídas por processo e cargo",
             extra={
