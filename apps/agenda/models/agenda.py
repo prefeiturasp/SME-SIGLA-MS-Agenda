@@ -5,10 +5,11 @@ from __future__ import annotations
 from typing import Any
 
 from auditlog.registry import auditlog
-from core.models import BaseModel
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils import timezone
+
+from core.models import BaseModel
 
 from .constants import MODALIDADE_CHOICES
 
