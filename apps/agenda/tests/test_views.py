@@ -410,7 +410,7 @@ def test_excluir_por_processo_remove_apenas_agendas_do_processo(client):
         candidatos_uuids=[],
     )
     base = reverse("agendas-excluir-por-processo")
-    url = f'{base}?{urlencode({'processo_uuid': str(processo_a)})}'
+    url = f"{base}?{urlencode({'processo_uuid': str(processo_a)})}"
     response = client.delete(url)
     assert response.status_code == status.HTTP_200_OK
     assert response.data["excluidas"] == 2
@@ -422,7 +422,7 @@ def test_excluir_por_processo_sem_agendas_retorna_zero(client):
     """Verifica excluir por processo sem agendas retorna zero."""
     processo_uuid = uuid.uuid4()
     base = reverse("agendas-excluir-por-processo")
-    url = f'{base}?{urlencode({'processo_uuid': str(processo_uuid)})}'
+    url = f"{base}?{urlencode({'processo_uuid': str(processo_uuid)})}"
     response = client.delete(url)
     assert response.status_code == status.HTTP_200_OK
     assert response.data["excluidas"] == 0
@@ -431,7 +431,7 @@ def test_excluir_por_processo_sem_agendas_retorna_zero(client):
 def test_excluir_por_processo_e_cargo_sem_processo_uuid_retorna_400(client):
     """Verifica excluir por processo e cargo sem processo uuid retorna 400."""
     base = reverse("agendas-excluir-por-processo-e-cargo")
-    url = f'{base}?{urlencode({'cargo': str(uuid.uuid4())})}'
+    url = f"{base}?{urlencode({'cargo': str(uuid.uuid4())})}"
     response = client.delete(url)
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.data["detail"] == "processo_uuid é obrigatório."
@@ -440,7 +440,7 @@ def test_excluir_por_processo_e_cargo_sem_processo_uuid_retorna_400(client):
 def test_excluir_por_processo_e_cargo_sem_cargo_retorna_400(client):
     """Verifica excluir por processo e cargo sem cargo retorna 400."""
     base = reverse("agendas-excluir-por-processo-e-cargo")
-    url = f'{base}?{urlencode({'processo_uuid': str(uuid.uuid4())})}'
+    url = f"{base}?{urlencode({'processo_uuid': str(uuid.uuid4())})}"
     response = client.delete(url)
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.data["detail"] == "cargo é obrigatório."
@@ -480,12 +480,10 @@ def test_excluir_por_processo_e_cargo_remove_apenas_agendas_do_filtro(client):
         candidatos_uuids=[],
     )
     base = reverse("agendas-excluir-por-processo-e-cargo")
-    url = (
-        f'{base}?{urlencode({
+    url = f'{base}?{urlencode({
             "processo_uuid": str(processo_a),
             "cargo": "123456",
         })}'
-    )
     response = client.delete(url)
     assert response.status_code == status.HTTP_200_OK
     assert response.data["excluidas"] == 2
@@ -493,20 +491,16 @@ def test_excluir_por_processo_e_cargo_remove_apenas_agendas_do_filtro(client):
     assert not Agenda.objects.filter(
         uuid=mesmo_processo_outro_cargo.uuid
     ).exists()
-    assert Agenda.objects.filter(
-        uuid=outro_processo_mesmo_cargo.uuid
-    ).exists()
+    assert Agenda.objects.filter(uuid=outro_processo_mesmo_cargo.uuid).exists()
 
 
 def test_excluir_por_processo_e_cargo_sem_agendas_retorna_zero(client):
     """Verifica excluir por processo e cargo sem agendas retorna zero."""
     base = reverse("agendas-excluir-por-processo-e-cargo")
-    url = (
-        f'{base}?{urlencode({
+    url = f'{base}?{urlencode({
             "processo_uuid": str(uuid.uuid4()),
             "cargo": str(uuid.uuid4()),
         })}'
-    )
     response = client.delete(url)
     assert response.status_code == status.HTTP_200_OK
     assert response.data["excluidas"] == 0

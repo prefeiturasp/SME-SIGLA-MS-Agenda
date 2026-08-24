@@ -221,7 +221,9 @@ LOGGING = {
 }
 
 ELASTIC_APM = {
-    "SERVICE_NAME": os.environ.get("ELASTIC_APM_SERVICE_NAME", "SME-SIGLA-MS-Agenda"),
+    "SERVICE_NAME": os.environ.get(
+        "ELASTIC_APM_SERVICE_NAME", "SME-SIGLA-MS-Agenda"
+    ),
     "SECRET_TOKEN": os.environ.get("ELASTIC_APM_SECRET_TOKEN", ""),
     "SERVER_URL": os.environ.get(
         "ELASTIC_APM_SERVER_URL", "http://localhost:8005"
