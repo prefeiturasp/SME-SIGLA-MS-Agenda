@@ -39,13 +39,24 @@ def test_init_custom_timeout():
     assert svc.timeout_seconds == 10
 
 
-def test_init_sets_headers():
-    """Verifica init sets headers."""
+def test_init_sets_headers(settings):
+    """Verifica init sets headers com API key."""
+    settings.API_KEY_HEADER = "X-API-Key"
+    settings.CANDIDATOS_API_KEY = "api-key-candidatos"
     svc = CandidatosApiService(base_url="http://x.com")
     assert svc._headers == {
         "Accept": "application/json",
         "Content-Type": "application/json",
+        "X-API-Key": "api-key-candidatos",
     }
+
+
+def test_init_envia_api_key_configurada(settings):
+    """Cliente inclui header com CANDIDATOS_API_KEY."""
+    settings.API_KEY_HEADER = "X-API-Key"
+    settings.CANDIDATOS_API_KEY = "test-key"
+    svc = CandidatosApiService(base_url="http://x.com")
+    assert svc._headers["X-API-Key"] == "test-key"
 
 
 def test_buscar_por_uuids_empty_list_returns_empty():

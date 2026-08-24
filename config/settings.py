@@ -4,6 +4,7 @@ Django settings for convocacao_processes project.
 
 import os
 import sys
+from datetime import timedelta
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -172,9 +173,12 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.SessionAuthentication",
         "rest_framework.authentication.BasicAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        # "sigla_sdk.autenticacao.authentication.ApiKeyAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticatedOrReadOnly",
+        # "rest_framework.permissions.IsAuthenticated",
+        "rest_framework.permissions.AllowAny",  # Para facilitar testes
     ],
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
@@ -257,12 +261,48 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "API para o sistema de agenda de sigla",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
+    # "APPEND_COMPONENTS": {
+    #     "securitySchemes": {
+    #         "ApiKeyAuth": {
+    #             "type": "apiKey",
+    #             "in": "header",
+    #             "name": "X-API-Key",
+    #         }
+    #     }
+    # },
+    # "SECURITY": [{"ApiKeyAuth": []}],
+    "SERVE_AUTHENTICATION": [
+        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework.authentication.BasicAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ],
+    "SERVE_PERMISSIONS": ["rest_framework.permissions.AllowAny"],
 }
+
+# Autenticação entre microserviços
+API_KEY = os.environ.get("API_KEY", "api-key-agenda")
+API_KEY_HEADER = os.environ.get("API_KEY_HEADER", "X-API-Key")
 
 # URL base da API de candidatos (ms-candidatos) para buscar habilitados por UUIDs
 CANDIDATOS_API_URL = os.environ.get(
     "CANDIDATOS_API_URL", "http://localhost:8000"
 )
+CANDIDATOS_API_KEY = os.environ.get("CANDIDATOS_API_KEY", "api-key-candidatos")
+CANDIDATOS_API_TIMEOUT = int(os.environ.get("CANDIDATOS_API_TIMEOUT", 30))
 
 # URL base da API de escolhas (ms-escolhas)
 ESCOLHAS_API_URL = os.environ.get("ESCOLHAS_API_URL", "http://localhost:8004")
+ESCOLHAS_API_KEY = os.environ.get("ESCOLHAS_API_KEY", "api-key-escolhas")
+ESCOLHAS_API_TIMEOUT = int(os.environ.get("ESCOLHAS_API_TIMEOUT", 30))
+
+JWT_SIGNING_KEY = os.environ.get(
+    "JWT_SIGNING_KEY", os.environ.get("SECRET_KEY", "fallback-só-dev")
+)
+
+SIMPLE_JWT = {
+    "SIGNING_KEY": JWT_SIGNING_KEY,
+    "ALGORITHM": "HS256",
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=1440),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "AUTH_HEADER_TYPES": ("Bearer",),
+}
