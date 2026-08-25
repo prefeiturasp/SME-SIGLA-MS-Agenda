@@ -23,13 +23,24 @@ def test_escolhas_api_service_init_custom_timeout():
     assert svc.timeout_seconds == 15
 
 
-def test_escolhas_api_service_init_headers():
-    """Verifica escolhas api service init headers."""
+def test_escolhas_api_service_init_headers(settings):
+    """Verifica escolhas api service init headers com API key."""
+    settings.API_KEY_HEADER = "X-API-Key"
+    settings.ESCOLHAS_API_KEY = "api-key-escolhas"
     svc = EscolhasApiService(base_url="http://x.com")
     assert svc._headers == {
         "Accept": "application/json",
         "Content-Type": "application/json",
+        "X-API-Key": "api-key-escolhas",
     }
+
+
+def test_escolhas_api_service_envia_api_key(settings):
+    """Cliente inclui header com ESCOLHAS_API_KEY."""
+    settings.API_KEY_HEADER = "X-API-Key"
+    settings.ESCOLHAS_API_KEY = "test-key"
+    svc = EscolhasApiService(base_url="http://x.com")
+    assert svc._headers["X-API-Key"] == "test-key"
 
 
 @patch("agenda.services.escolhas_api_service.http_client.get")
