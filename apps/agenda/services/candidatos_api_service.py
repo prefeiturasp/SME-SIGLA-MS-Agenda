@@ -16,21 +16,17 @@ logger = logging.getLogger(__name__)
 class CandidatosApiService:
     """Serviço para chamar o endpoint de candidatos buscar-por-uuids."""
 
-    def __init__(
-        self, base_url: str | None = None, timeout_seconds: int | None = None
-    ) -> None:
+    def __init__(self, base_url: str = "", timeout_seconds: int = 0) -> None:
         """Inicializa a instância com os parâmetros informados.
 
         Args:
             base_url: URL base do serviço remoto.
             timeout_seconds: Tempo máximo de espera, em segundos.
         """
-        if base_url is None:
-            base_url = settings.CANDIDATOS_API_URL
-        if timeout_seconds is None:
-            timeout_seconds = getattr(settings, "CANDIDATOS_API_TIMEOUT", 30)
-        self.base_url = base_url.rstrip("/")
-        self.timeout_seconds = timeout_seconds
+        self.base_url = base_url.rstrip("/") or settings.CANDIDATOS_API_URL
+        self.timeout_seconds = (
+            timeout_seconds or settings.CANDIDATOS_API_TIMEOUT
+        )
         self._headers = {
             "Accept": "application/json",
             "Content-Type": "application/json",
