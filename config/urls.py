@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.conf.urls.static import static
-from django.contrib import admin
 from django.http import JsonResponse
 from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
@@ -11,8 +10,7 @@ def healthcheck(_request):
 
 
 _core_urlpatterns = [
-    path("api/v1/", include("agenda.urls")),
-    path("admin/", admin.site.urls),
+    path("api/v1/", include("agenda.api.urls")),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
         "api/docs/",

@@ -3,6 +3,8 @@ Django settings for convocacao_processes project.
 """
 
 import os
+import sys
+from datetime import timedelta
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -13,6 +15,8 @@ DJANGO_ENVIRONMENT = os.environ.get("DJANGO_ENVIRONMENT", "local")
 MS_PATH = os.environ.get("MS_PATH", "/ms-agenda")
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+sys.path.insert(0, os.path.join(BASE_DIR, "apps"))
 SECRET_KEY = os.environ.get(
     "SECRET_KEY", "django-insecure-your-secret-key-here"
 )
@@ -29,8 +33,11 @@ CSRF_TRUSTED_ORIGINS = [
     "https://hom-api-sigla.sme.prefeitura.sp.gov.br",
 ]
 
+AMBIENTE_APLICACAO = os.environ.get("AMBIENTE_APLICACAO", DJANGO_ENVIRONMENT)
+
 # Application definition
 INSTALLED_APPS = [
+    "elasticapm.contrib.django",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -42,10 +49,12 @@ INSTALLED_APPS = [
     "django_filters",
     "auditlog",
     "drf_spectacular",
+    "core",
     "agenda",
 ]
 
 MIDDLEWARE = [
+    "elasticapm.contrib.django.middleware.TracingMiddleware",
     "sigla_sdk.middlewares.CorrelationIdMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
@@ -164,9 +173,12 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.SessionAuthentication",
         "rest_framework.authentication.BasicAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        # "sigla_sdk.autenticacao.authentication.ApiKeyAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticatedOrReadOnly",
+        # "rest_framework.permissions.IsAuthenticated",
+        "rest_framework.permissions.AllowAny",  # Para facilitar testes
     ],
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
@@ -212,17 +224,85 @@ LOGGING = {
     },
 }
 
+ELASTIC_APM = {
+    "SERVICE_NAME": os.environ.get(
+        "ELASTIC_APM_SERVICE_NAME", "SME-SIGLA-MS-Agenda"
+    ),
+    "SECRET_TOKEN": os.environ.get("ELASTIC_APM_SECRET_TOKEN", ""),
+    "SERVER_URL": os.environ.get(
+        "ELASTIC_APM_SERVER_URL", "http://localhost:8005"
+    ),
+    "ENVIRONMENT": os.environ.get(
+        "ELASTIC_APM_ENVIRONMENT", AMBIENTE_APLICACAO
+    ),
+    "ENABLED": os.environ.get("ELASTIC_APM_ENABLED", "0") == "1",
+    "CAPTURE_HEADERS": (
+        os.environ.get("ELASTIC_APM_CAPTURE_HEADERS", "1") == "1"
+    ),
+    "TRANSACTION_SAMPLE_RATE": float(
+        os.environ.get("ELASTIC_APM_TRANSACTION_SAMPLE_RATE", "0.3")
+    ),
+    "METRICS_INTERVAL": os.environ.get("ELASTIC_APM_METRICS_INTERVAL", "10s"),
+    "FLUSH_INTERVAL": os.environ.get("ELASTIC_APM_FLUSH_INTERVAL", "10s"),
+    "MAX_BATCH_EVENT_COUNT": int(
+        os.environ.get("ELASTIC_APM_MAX_BATCH_EVENT_COUNT", "1000")
+    ),
+    "MAX_QUEUE_EVENT_COUNT": int(
+        os.environ.get("ELASTIC_APM_MAX_QUEUE_EVENT_COUNT", "1000")
+    ),
+    "TRANSACTION_MAX_SPANS": int(
+        os.environ.get("ELASTIC_APM_TRANSACTION_MAX_SPANS", "500")
+    ),
+    "LOG_LEVEL": os.environ.get("ELASTIC_APM_LOG_LEVEL", "INFO"),
+}
+
 SPECTACULAR_SETTINGS = {
     "TITLE": "Agenda Sigla API",
     "DESCRIPTION": "API para o sistema de agenda de sigla",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
+    # "APPEND_COMPONENTS": {
+    #     "securitySchemes": {
+    #         "ApiKeyAuth": {
+    #             "type": "apiKey",
+    #             "in": "header",
+    #             "name": "X-API-Key",
+    #         }
+    #     }
+    # },
+    # "SECURITY": [{"ApiKeyAuth": []}],
+    "SERVE_AUTHENTICATION": [
+        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework.authentication.BasicAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ],
+    "SERVE_PERMISSIONS": ["rest_framework.permissions.AllowAny"],
 }
+
+# Autenticação entre microserviços
+API_KEY = os.environ.get("API_KEY", "api-key-agenda")
+API_KEY_HEADER = os.environ.get("API_KEY_HEADER", "X-API-Key")
 
 # URL base da API de candidatos (ms-candidatos) para buscar habilitados por UUIDs
 CANDIDATOS_API_URL = os.environ.get(
     "CANDIDATOS_API_URL", "http://localhost:8000"
 )
+CANDIDATOS_API_KEY = os.environ.get("CANDIDATOS_API_KEY", "api-key-candidatos")
+CANDIDATOS_API_TIMEOUT = int(os.environ.get("CANDIDATOS_API_TIMEOUT", 30))
 
 # URL base da API de escolhas (ms-escolhas)
 ESCOLHAS_API_URL = os.environ.get("ESCOLHAS_API_URL", "http://localhost:8004")
+ESCOLHAS_API_KEY = os.environ.get("ESCOLHAS_API_KEY", "api-key-escolhas")
+ESCOLHAS_API_TIMEOUT = int(os.environ.get("ESCOLHAS_API_TIMEOUT", 30))
+
+JWT_SIGNING_KEY = os.environ.get(
+    "JWT_SIGNING_KEY", os.environ.get("SECRET_KEY", "fallback-só-dev")
+)
+
+SIMPLE_JWT = {
+    "SIGNING_KEY": JWT_SIGNING_KEY,
+    "ALGORITHM": "HS256",
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=1440),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "AUTH_HEADER_TYPES": ("Bearer",),
+}
