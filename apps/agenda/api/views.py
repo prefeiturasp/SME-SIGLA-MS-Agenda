@@ -13,7 +13,6 @@ from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from sigla_sdk.context import get_correlation_id
 
 from agenda.filters import AgendaOrderingFilter
 from agenda.models import Agenda
@@ -51,14 +50,8 @@ class AgendaViewSet(viewsets.ModelViewSet):
     def list(self, request: Any, *args: Any, **kwargs: Any) -> Any:
         """Listar as agendas."""
         logger.info(
-            "Listando agendas",
-            extra={
-                "correlation_id": get_correlation_id(),
-                "method": request.method,
-                "path": request.path,
-                "params": request.query_params,
-                "user": request.user,
-            },
+            f"Listando agendas | method={request.method} path={request.path} "
+            f"params={request.query_params} user={request.user}"
         )
         response = super().list(request, *args, **kwargs)
         results = response.data.get("results", [])
@@ -82,9 +75,8 @@ class AgendaViewSet(viewsets.ModelViewSet):
                 )
             except RequestException as exc:
                 logger.warning(
-                    "Erro ao buscar escolhas por processo_uuid=%s: %s",
-                    processo_uuid,
-                    exc,
+                    f"Erro ao buscar escolhas | "
+                    f"processo_uuid={processo_uuid} error={exc}"
                 )
             else:
                 escolhas_lista = (
@@ -110,19 +102,12 @@ class AgendaViewSet(viewsets.ModelViewSet):
     def create(self, request: Any, *args: Any, **kwargs: Any) -> Any:
         """Cria ou atualiza várias agendas a partir do payload."""
         logger.info(
-            "Criando agendas",
-            extra={
-                "correlation_id": get_correlation_id(),
-                "method": request.method,
-                "path": request.path,
-                "processo_uuid": request.data.get("processo_uuid"),
-                "processo_nome": request.data.get("processo_nome"),
-                "candidatos_uuids": len(
-                    request.data.get("candidatos_uuids", [])
-                ),
-                "agendas": len(request.data.get("agendas", [])),
-                "user": request.user,
-            },
+            f"Criando agendas | method={request.method} path={request.path} "
+            f"processo_uuid={request.data.get('processo_uuid')} "
+            f"processo_nome={request.data.get('processo_nome')} "
+            f"candidatos_uuids={len(request.data.get('candidatos_uuids', []))} "
+            f"agendas={len(request.data.get('agendas', []))} "
+            f"user={request.user}"
         )
         payload_serializer = CreateAgendasPayloadSerializer(data=request.data)
         payload_serializer.is_valid(raise_exception=True)
@@ -150,7 +135,7 @@ class AgendaViewSet(viewsets.ModelViewSet):
                 ]
             except RequestException as exc:
                 logger.exception(
-                    "Erro ao buscar candidatos por UUIDs: %s", exc
+                    f"Erro ao buscar candidatos por UUIDs: {exc}"
                 )
                 return Response(
                     {"detail": "Erro ao consultar API de candidatos."},
@@ -200,18 +185,11 @@ class AgendaViewSet(viewsets.ModelViewSet):
             status.HTTP_201_CREATED if agendas_criadas else status.HTTP_200_OK
         )
         logger.info(
-            "Agendas criadas",
-            extra={
-                "correlation_id": get_correlation_id(),
-                "method": request.method,
-                "path": request.path,
-                "processo_uuid": processo_uuid,
-                "processo_nome": processo_nome,
-                "agendas_criadas": len(agendas_criadas),
-                "agendas_atualizadas": len(agendas_atualizadas),
-                "todas_agendas": len(todas_agendas),
-                "status_code": status_code,
-            },
+            f"Agendas criadas | method={request.method} path={request.path} "
+            f"processo_uuid={processo_uuid} processo_nome={processo_nome} "
+            f"agendas_criadas={len(agendas_criadas)} "
+            f"agendas_atualizadas={len(agendas_atualizadas)} "
+            f"todas_agendas={len(todas_agendas)} status_code={status_code}"
         )
         return Response(response_serializer.data, status=status_code)
 
@@ -226,12 +204,8 @@ class AgendaViewSet(viewsets.ModelViewSet):
             )
         deleted = AgendaRepository.excluir_do_processo(processo_uuid)
         logger.info(
-            "Agendas excluídas por processo",
-            extra={
-                "correlation_id": get_correlation_id(),
-                "processo_uuid": processo_uuid,
-                "excluidas": deleted,
-            },
+            f"Agendas excluídas por processo | "
+            f"processo_uuid={processo_uuid} excluidas={deleted}"
         )
         return Response({"excluidas": deleted}, status=status.HTTP_200_OK)
 
@@ -256,12 +230,8 @@ class AgendaViewSet(viewsets.ModelViewSet):
             processo_uuid, cargo_codigo
         )
         logger.info(
-            "Agendas excluídas por processo e cargo",
-            extra={
-                "correlation_id": get_correlation_id(),
-                "processo_uuid": processo_uuid,
-                "cargo_codigo": cargo_codigo,
-                "excluidas": deleted,
-            },
+            f"Agendas excluídas por processo e cargo | "
+            f"processo_uuid={processo_uuid} cargo_codigo={cargo_codigo} "
+            f"excluidas={deleted}"
         )
         return Response({"excluidas": deleted}, status=status.HTTP_200_OK)

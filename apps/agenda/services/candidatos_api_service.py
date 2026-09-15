@@ -7,7 +7,6 @@ from typing import Any
 
 from django.conf import settings
 from requests import RequestException
-from sigla_sdk.context import get_correlation_id
 from sigla_sdk.http.api_client import http_client
 
 logger = logging.getLogger(__name__)
@@ -55,16 +54,9 @@ class CandidatosApiService:
         params = {"fields": fields, "order_by": "ranking_escolha"}
         payload = {"uuids": [str(u) for u in uuids]}
         logger.info(
-            "Buscando candidatos por UUIDs",
-            extra={
-                "correlation_id": get_correlation_id(),
-                "method": "POST",
-                "url": url,
-                "params": params,
-                "payload": payload,
-                "fields": fields,
-                "headers": self._headers,
-            },
+            f"Buscando candidatos por UUIDs | method=POST url={url} "
+            f"params={params} payload={payload} fields={fields} "
+            f"headers={self._headers}"
         )
         try:
             response = http_client.post(
@@ -75,14 +67,10 @@ class CandidatosApiService:
                 timeout=self.timeout_seconds,
             )
             response.raise_for_status()
-        except RequestException:
+        except RequestException as exc:
             logger.error(
-                "Erro ao buscar candidatos por UUIDs",
-                extra={
-                    "correlation_id": get_correlation_id(),
-                    "method": "POST",
-                    "url": url,
-                },
+                f"Erro ao buscar candidatos por UUIDs | method=POST "
+                f"url={url} error={exc}"
             )
             raise
         data = response.json()
@@ -101,7 +89,6 @@ class CandidatosApiService:
 
         results = sorted(results, key=_key)
         logger.info(
-            "Candidatos buscados por UUIDs (total=%d, ranking asc)",
-            len(results),
+            f"Candidatos buscados por UUIDs | total={len(results)} ranking=asc"
         )
         return results  # type: ignore[no-any-return]

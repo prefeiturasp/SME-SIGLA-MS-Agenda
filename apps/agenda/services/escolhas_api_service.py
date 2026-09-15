@@ -57,7 +57,7 @@ class EscolhasApiService:
         response.raise_for_status()
         data = response.json()
         logger.info(
-            "Escolhas buscadas por vaga_escola__lote__processo_uuid=%s",
-            vaga_escola__lote__processo_uuid,
+            f"Escolhas buscadas | "
+            f"vaga_escola__lote__processo_uuid={vaga_escola__lote__processo_uuid}"
         )
         return data  # type: ignore[no-any-return]
