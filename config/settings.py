@@ -285,20 +285,70 @@ ELASTIC_APM = {
     'CAPTURE_TRANSACTION_STACKTRACES_LIMIT': 10,
 }
 
+DESCRICAO_API = """
+API do microsserviço de **agenda** do SIGLA (SME-SP). Mantém as agendas de
+um processo de convocação: as sessões em que os candidatos de cada cargo
+escolhem vaga, com data, horário, modalidade e os candidatos de cada uma.
+
+## Autenticação
+
+Envie o token **JWT** emitido pelo microsserviço de usuários no header
+`Authorization: Bearer <token>`. Também é aceito HTTP Basic. As rotas
+atendem chamadas sem credencial, mas uma credencial **inválida** é
+recusada com **403**: o serviço não responde 401.
+
+## Erros
+
+- **400** com `{"<campo>": ["..."]}`: dados ou filtros inválidos. Em
+  campos que são listas, o valor é um objeto indexado pela posição do item
+  inválido.
+- **400** com `{"detail": "..."}`: parâmetro obrigatório ausente ou corpo
+  que não é JSON válido.
+- **403** com `{"detail": "...", "code": "..."}`: credencial recusada.
+- **404** com `{"detail": "..."}`: registro ou página não encontrados.
+- **502** com `{"detail": "..."}`: o microsserviço de candidatos não
+  respondeu durante a criação de agendas.
+- **500**: erro inesperado, sem corpo JSON.
+
+## Paginação
+
+A listagem usa `page` e `page_size` (padrão 10) e responde com `links`,
+`count`, `page`, `page_size` e `results`. Quando a primeira agenda da
+página é ONLINE, vem também `candidatos_uuids_restantes`.
+"""
+
 SPECTACULAR_SETTINGS = {
     "TITLE": "Agenda Sigla API",
-    "DESCRIPTION": "API para o sistema de agenda de sigla",
+    "DESCRIPTION": DESCRICAO_API,
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
-    # "APPEND_COMPONENTS": {
-    #     "securitySchemes": {
-    #         "ApiKeyAuth": {
-    #             "type": "apiKey",
-    #             "in": "header",
-    #             "name": "X-API-Key",
-    #         }
-    #     }
-    # },
+    "TAGS": [
+        {
+            "name": "Agendas",
+            "description": (
+                "Sessões de escolha de um processo de convocação, por "
+                "cargo, com os candidatos de cada sessão."
+            ),
+        },
+    ],
+    "APPEND_COMPONENTS": {
+        "securitySchemes": {
+            "jwtAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT",
+                "description": (
+                    "Token JWT emitido pelo microsserviço de usuários do "
+                    "SIGLA, enviado em `Authorization: Bearer <token>`."
+                ),
+            },
+            # "ApiKeyAuth": {
+            #     "type": "apiKey",
+            #     "in": "header",
+            #     "name": "X-API-Key",
+            # },
+        }
+    },
     # "SECURITY": [{"ApiKeyAuth": []}],
     "SERVE_AUTHENTICATION": [
         "rest_framework.authentication.SessionAuthentication",
