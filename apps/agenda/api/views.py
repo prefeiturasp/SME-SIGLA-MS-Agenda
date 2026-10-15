@@ -7,6 +7,7 @@ from typing import Any
 
 from django.conf import settings
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from requests import RequestException
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -14,6 +15,7 @@ from rest_framework.filters import SearchFilter
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
+from agenda.api.schemas import OPERACOES_AGENDAS, TAG_AGENDAS
 from agenda.filters import AgendaOrderingFilter
 from agenda.models import Agenda
 from agenda.repository import AgendaRepository
@@ -29,6 +31,8 @@ from core.utils import CustomPagination
 logger = logging.getLogger(__name__)
 
 
+@extend_schema(tags=[TAG_AGENDAS])
+@extend_schema_view(**OPERACOES_AGENDAS)
 class AgendaViewSet(viewsets.ModelViewSet):
     """ViewSet para gerenciar agendas de convocação."""
 
