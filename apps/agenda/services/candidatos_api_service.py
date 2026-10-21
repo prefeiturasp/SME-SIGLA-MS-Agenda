@@ -9,6 +9,8 @@ from django.conf import settings
 from requests import RequestException
 from sigla_sdk.http.api_client import http_client
 
+from agenda.services.http_log import mascarar_headers
+
 logger = logging.getLogger(__name__)
 
 
@@ -56,7 +58,8 @@ class CandidatosApiService:
         logger.info(
             f"Buscando candidatos por UUIDs | method=POST url={url} "
             f"params={params} payload={payload} fields={fields} "
-            f"headers={self._headers}"
+            f"headers={mascarar_headers(self._headers)} "
+            f"timeout_seconds={self.timeout_seconds}"
         )
         try:
             response = http_client.post(
@@ -70,7 +73,9 @@ class CandidatosApiService:
         except RequestException as exc:
             logger.error(
                 f"Erro ao buscar candidatos por UUIDs | method=POST "
-                f"url={url} error={exc}"
+                f"url={url} error={exc} "
+                f"headers={mascarar_headers(self._headers)} "
+                f"timeout_seconds={self.timeout_seconds}"
             )
             raise
         data = response.json()
