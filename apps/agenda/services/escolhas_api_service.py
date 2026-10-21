@@ -6,7 +6,10 @@ import logging
 from typing import Any
 
 from django.conf import settings
+from requests import RequestException
 from sigla_sdk.http.api_client import http_client
+
+from agenda.services.http_log import mascarar_headers
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +42,9 @@ class EscolhasApiService:
 
         Returns:
             Dicionário com os dados processados.
+
+        Raises:
+            RequestException: Em caso de erro na requisição.
         """
         url = f"{self.base_url}/api/v1/escolhas/"
         params = {
@@ -48,16 +54,30 @@ class EscolhasApiService:
             "no_page": True,
             "fields": "candidato_uuid",
         }
-        response = http_client.get(
-            url,
-            params=params,
-            headers=self._headers,
-            timeout=self.timeout_seconds,
+        logger.info(
+            f"Buscando escolhas por processo uuid | method=GET url={url} "
+            f"params={params} "
+            f"headers={mascarar_headers(self._headers)} "
+            f"timeout_seconds={self.timeout_seconds}"
         )
-        response.raise_for_status()
+        try:
+            response = http_client.get(
+                url,
+                params=params,
+                headers=self._headers,
+                timeout=self.timeout_seconds,
+            )
+            response.raise_for_status()
+        except RequestException as exc:
+            logger.error(
+                f"Erro ao buscar escolhas | method=GET url={url} "
+                f"error={exc} "
+            )
+            raise
         data = response.json()
         logger.info(
             f"Escolhas buscadas | "
-            f"vaga_escola__lote__processo_uuid={vaga_escola__lote__processo_uuid}"
+            f"vaga_escola__lote__processo_uuid="
+            f"{vaga_escola__lote__processo_uuid}"
         )
         return data  # type: ignore[no-any-return]
